@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Menú Interactivo</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f1ee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.container {
+    background: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,.15);
+}
+a {
+    display: block;
+    margin: 12px 0;
+    text-decoration: none;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+.admin {
+    background: #8b0000;
+    color: #fff;
+}
+.mesero {
+    background: #2e8b57;
+    color: #fff;
+}
+.registro {
+    background: #555;
+    color: #fff;
+}
+button:hover {
+    opacity: 0.9;
+}
+
+/* ===== ESTILOS DEL MODAL (compatibles con tu diseño) ===== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+.modal.show {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 32px;
+    text-align: center;
+    min-width: 260px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.modal-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 40px;
+    margin: 0 auto 16px;
+}
+.modal-success {
+    background: #2ecc71;
+    position: relative;
+}
+.modal-success::before {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+}
+.modal-error {
+    background: #e74c3c;
+    position: relative;
+}
+.modal-error::before {
+    content: "!";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+}
+.modal-message {
+    font-size: 0.875rem;
+    color: #2d3436;
+    margin-bottom: 20px;
+}
+.modal-btn {
+    background: #8b0000;
+    color: white;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: inherit;
+}
+.modal-btn:hover {
+    background: #6b0000;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1>Menú Interactivo</h1>
+    <p>Selecciona una opción</p>
+
+    <a href="auth/login_admin.html"><button class="admin">Administrador</button></a>
+    <a href="auth/login_mesero.html"><button class="mesero">Mesero</button></a>
+    <a href="auth/login_cocinero.html"><button class="mesero">Cocinero</button></a>
+    <!--<a href="auth/registrar_admin.html"><button class="registro">Registrar administrador</button>-->
+</div>
+
+<!-- Modal de notificación -->
+<div id="notificationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon" id="modalIcon"></div>
+        <p class="modal-message" id="modalMessage"></p>
+        <button class="modal-btn" onclick="closeModal()">Aceptar</button>
+    </div>
+</div>
+
+<script>
+    function showModal(message, isSuccess = true) {
+        const modal = document.getElementById('notificationModal');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalMessage = document.getElementById('modalMessage');
+        modalIcon.className = 'modal-icon ' + (isSuccess ? 'modal-success' : 'modal-error');
+        modalMessage.textContent = message;
+        modal.classList.add('show');
+        setTimeout(() => closeModal(), 3000);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('notificationModal');
+        modal.classList.remove('show');
+        // Limpiar parámetro logout de la URL después de mostrar
+        const url = new URL(window.location);
+        if (url.searchParams.has('logout')) {
+            url.searchParams.delete('logout');
+            window.history.replaceState({}, document.title, url.pathname);
+        }
+    }
+
+    // Detectar si venimos de cerrar sesión
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('logout') && urlParams.get('logout') === '1') {
+        showModal('Sesión cerrada correctamente', true);
+    }
+</script>
+</body>
+</html>

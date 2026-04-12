@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Cocinero</title>
+<style>
+/* ===== ESTILOS UNIFICADOS ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa, #e9ecef);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.login-container {
+    width: 100%;
+    max-width: 450px;
+    margin: 20px;
+}
+.card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+    border: 1px solid #eef2f4;
+}
+.card-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid #eef2f4;
+    background: #fafcfd;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.card-header-icon {
+    width: 4px;
+    height: 28px;
+    background: #8b0000;
+    border-radius: 2px;
+}
+.card-header h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3436;
+    margin: 0;
+}
+.card-header p {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    margin-top: 4px;
+}
+.form-mesa {
+    padding: 28px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    font-family: inherit;
+}
+.form-group input:focus {
+    outline: none;
+    border-color: #8b0000;
+    box-shadow: 0 0 0 3px rgba(139,0,0,0.08);
+}
+.error-message {
+    font-size: 0.6875rem;
+    color: #e74c3c;
+    margin-top: 6px;
+    min-height: 18px;
+    display: none;
+}
+.error-message.show {
+    display: block;
+}
+.btn-submit {
+    width: 100%;
+    background: #8b0000;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+}
+.btn-submit:hover { background: #6b0000; }
+.btn-submit:disabled { background: #bdc3c7; cursor: not-allowed; }
+.back-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.75rem;
+}
+.back-link a {
+    color: #8b0000;
+    text-decoration: none;
+    font-weight: 500;
+}
+.back-link a:hover { text-decoration: underline; }
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+.modal.show { display: flex; animation: fadeIn 0.2s ease; }
+.modal-content {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    padding: 28px 32px;
+    text-align: center;
+    min-width: 280px;
+    animation: slideUp 0.25s ease;
+}
+.modal-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 40px;
+    margin: 0 auto 16px;
+}
+.modal-success {
+    background: #2ecc71;
+    position: relative;
+}
+.modal-success::before {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+}
+.modal-error {
+    background: #e74c3c;
+    position: relative;
+}
+.modal-error::before {
+    content: "!";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+}
+.modal-message {
+    font-size: 0.875rem;
+    color: #2d3436;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+.modal-btn {
+    background: #8b0000;
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.modal-btn:hover { background: #6b0000; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="login-container">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-icon"></div>
+            <div>
+                <h2>Cocinero</h2>
+                <p>Ingresa tus credenciales</p>
+            </div>
+        </div>
+        <div class="form-mesa">
+            <form id="loginForm" method="POST" action="php/validar_cocinero.php">
+                <div class="form-group">
+                    <label>Correo</label>
+                    <input type="email" name="correo" id="correo" autocomplete="email" required>
+                    <div class="error-message" id="error-correo"></div>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" name="password" id="password" autocomplete="current-password" required>
+                    <div class="error-message" id="error-password"></div>
+                </div>
+                <button type="submit" class="btn-submit" id="btnSubmit">Entrar</button>
+            </form>
+            <div class="back-link">
+                <a href="../index.html">← Volver</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de notificación -->
+<div id="notificationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon" id="modalIcon"></div>
+        <p class="modal-message" id="modalMessage"></p>
+        <button class="modal-btn" onclick="closeModal()">Aceptar</button>
+    </div>
+</div>
+
+<script>
+function showModal(message, isSuccess = true) {
+    const modal = document.getElementById('notificationModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalMessage = document.getElementById('modalMessage');
+    modalIcon.className = 'modal-icon ' + (isSuccess ? 'modal-success' : 'modal-error');
+    modalMessage.textContent = message;
+    modal.classList.add('show');
+    setTimeout(() => closeModal(), 3000);
+}
+function closeModal() {
+    document.getElementById('notificationModal').classList.remove('show');
+}
+
+const correoInput = document.getElementById('correo');
+const passInput = document.getElementById('password');
+const errorCorreo = document.getElementById('error-correo');
+const errorPass = document.getElementById('error-password');
+
+function validarCorreo() {
+    const val = correoInput.value.trim();
+    if (val === '') {
+        errorCorreo.textContent = '';
+        errorCorreo.classList.remove('show');
+        return true;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(val)) {
+        errorCorreo.textContent = 'Correo electrónico inválido';
+        errorCorreo.classList.add('show');
+        return false;
+    } else {
+        errorCorreo.textContent = '';
+        errorCorreo.classList.remove('show');
+        return true;
+    }
+}
+function validarPassword() {
+    const val = passInput.value.trim();
+    if (val === '') {
+        errorPass.textContent = '';
+        errorPass.classList.remove('show');
+        return true;
+    }
+    if (val.length < 4) {
+        errorPass.textContent = 'Mínimo 4 caracteres';
+        errorPass.classList.add('show');
+        return false;
+    } else {
+        errorPass.textContent = '';
+        errorPass.classList.remove('show');
+        return true;
+    }
+}
+correoInput.addEventListener('input', validarCorreo);
+passInput.addEventListener('input', validarPassword);
+
+const form = document.getElementById('loginForm');
+let submitLock = false;
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (submitLock) return;
+    
+    const correoValido = validarCorreo();
+    const passValido = validarPassword();
+    if (!correoValido || !passValido) {
+        showModal('Por favor completa los campos correctamente', false);
+        return;
+    }
+    
+    submitLock = true;
+    const btn = document.getElementById('btnSubmit');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Verificando...';
+    btn.disabled = true;
+    
+    const formData = new FormData(form);
+    try {
+        const response = await fetch('php/validar_cocinero.php', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const result = await response.json();
+        if (result.success) {
+            showModal(result.message, true);
+            setTimeout(() => window.location.href = result.redirect, 1000);
+        } else {
+            showModal(result.message, false);
+        }
+    } catch (err) {
+        showModal('Error de conexión. Intenta de nuevo.', false);
+    } finally {
+        submitLock = false;
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+});
+
+// Mostrar modal si hay parámetros de logout o error
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('logout') && urlParams.get('logout') === '1') {
+    showModal('Sesión cerrada correctamente', true);
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+if (urlParams.has('error') && urlParams.get('error') === '1') {
+    showModal('Credenciales incorrectas o cuenta desactivada', false);
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+</script>
+</body>
+</html>
