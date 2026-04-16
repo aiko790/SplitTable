@@ -43,7 +43,12 @@ function cargarCategoriasEnModal(categoriaSeleccionadaId = null) {
         .then(data => {
             if (data.ok) {
                 currentCategorias = data.categorias;
-                currentPlatillos = data.platillos;
+                // Ordenar: disponibles primero, luego no disponibles
+                currentPlatillos = data.platillos.sort((a, b) => {
+                    if (a.disponible === 1 && b.disponible === 0) return -1;
+                    if (a.disponible === 0 && b.disponible === 1) return 1;
+                    return a.nombre.localeCompare(b.nombre);
+                });
                 if (currentCategorias.length === 0) {
                     container.innerHTML = '<div class="hint">No hay categorías</div>';
                     return;
@@ -99,20 +104,23 @@ function cargarPlatillosEnModal(categoriaId) {
     }
     let html = '';
     platillosFiltrados.forEach(p => {
-        // Usar imagen por defecto si no hay
+        const disponible = parseInt(p.disponible) === 1;
         const imagenSrc = (p.imagen && p.imagen !== '') ? p.imagen : 'iconos/vacio.png';
         const imagenHtml = `<img src="${imagenSrc}" alt="${escapeHtml(p.nombre)}">`;
+        const claseNoDisponible = disponible ? '' : 'no-disponible';
+        const badge = disponible ? '' : '<span class="badge-no-disponible">NO DISPONIBLE</span>';
         
         html += `
-            <div class="modal-dish-card" data-id-platillo="${p.id_platillo}" data-nombre="${escapeHtml(p.nombre)}" data-precio="${p.precio}" data-descripcion="${escapeHtml(p.descripcion || '')}">
+            <div class="modal-dish-card ${claseNoDisponible}" data-id-platillo="${p.id_platillo}" data-nombre="${escapeHtml(p.nombre)}" data-precio="${p.precio}" data-descripcion="${escapeHtml(p.descripcion || '')}" data-disponible="${p.disponible}">
                 <div class="dish-image">
                     ${imagenHtml}
                 </div>
                 <div class="dish-info">
-                    <div class="modal-dish-title">${escapeHtml(p.nombre)}</div>
+                    <div class="modal-dish-title">${escapeHtml(p.nombre)} ${badge}</div>
                     <div class="modal-dish-desc">${escapeHtml(p.descripcion ? p.descripcion.substring(0, 60) : 'Sin descripción')}</div>
                     <div class="modal-dish-bottom">
                         <span class="modal-dish-price">$${parseFloat(p.precio).toFixed(2)}</span>
+                        <button class="btn-toggle-disponible" data-id="${p.id_platillo}" data-disponible="${p.disponible}" title="${disponible ? 'Marcar como no disponible' : 'Marcar como disponible'}"><img src="iconos/sync.png" alt="Cambiar disponibilidad" style="width:16px;height:16px;"></button>
                     </div>
                 </div>
             </div>
@@ -120,14 +128,71 @@ function cargarPlatillosEnModal(categoriaId) {
     });
     container.innerHTML = html;
     
-    // Hacer que toda la tarjeta sea clickeable
+    // Evento para agregar platillo (solo si está disponible)
     document.querySelectorAll('.modal-dish-card').forEach(card => {
         card.addEventListener('click', (e) => {
+            // Si el clic fue en el botón de toggle, no hacemos nada (se maneja aparte)
+            if (e.target.closest('.btn-toggle-disponible')) return;
+            
+            const disponible = card.getAttribute('data-disponible') === '1';
+            if (!disponible) {
+                mostrarModalInformativo('Atención', 'Este platillo no está disponible en este momento.', false);
+                return;
+            }
+            
             e.stopPropagation();
             const idPlatillo = card.getAttribute('data-id-platillo');
             const nombre = card.getAttribute('data-nombre');
             const precio = parseFloat(card.getAttribute('data-precio'));
             abrirModalAgregarPlatilloDesdeModal(idPlatillo, nombre, precio);
+        });
+    });
+    
+    // Evento para botón de toggle disponibilidad
+    document.querySelectorAll('.btn-toggle-disponible').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idPlatillo = btn.getAttribute('data-id');
+            const disponibleActual = btn.getAttribute('data-disponible') === '1';
+            const nuevoEstado = disponibleActual ? 0 : 1;
+            const mensaje = disponibleActual 
+                ? '¿Marcar este platillo como NO DISPONIBLE? Los clientes no podrán pedirlo.' 
+                : '¿Marcar este platillo como DISPONIBLE nuevamente?';
+            
+            mostrarModalConfirmacion(
+                disponibleActual ? 'Deshabilitar platillo' : 'Habilitar platillo',
+                mensaje,
+                () => {
+                    fetch('api/toggle_disponible.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id_platillo: idPlatillo, disponible: nuevoEstado })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.ok) {
+                            // Actualizar el platillo en currentPlatillos
+                            const platillo = currentPlatillos.find(p => p.id_platillo == idPlatillo);
+                            if (platillo) {
+                                platillo.disponible = nuevoEstado;
+                            }
+                            // Recargar la vista actual
+                            if (currentModalCategoriaId) {
+                                cargarPlatillosEnModal(currentModalCategoriaId);
+                            }
+                            // También actualizar el resumen si es necesario
+                            actualizarResumenClienteEnModal();
+                            mostrarModalInformativo('Éxito', `Platillo ${nuevoEstado ? 'disponible' : 'no disponible'}`, true);
+                        } else {
+                            mostrarModalInformativo('Error', data.msg || 'No se pudo actualizar', false);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error al cambiar disponibilidad:', err);
+                        mostrarModalErrorConexion('Error de conexión');
+                    });
+                }
+            );
         });
     });
 }
@@ -147,20 +212,23 @@ function filtrarPlatillosEnModal(termino) {
     }
     let html = '';
     platillosFiltrados.forEach(p => {
-        // Usar imagen por defecto si no hay
+        const disponible = parseInt(p.disponible) === 1;
         const imagenSrc = (p.imagen && p.imagen !== '') ? p.imagen : 'iconos/vacio.png';
         const imagenHtml = `<img src="${imagenSrc}" alt="${escapeHtml(p.nombre)}">`;
+        const claseNoDisponible = disponible ? '' : 'no-disponible';
+        const badge = disponible ? '' : '<span class="badge-no-disponible">NO DISPONIBLE</span>';
         
         html += `
-            <div class="modal-dish-card" data-id-platillo="${p.id_platillo}" data-nombre="${escapeHtml(p.nombre)}" data-precio="${p.precio}" data-descripcion="${escapeHtml(p.descripcion || '')}">
+            <div class="modal-dish-card ${claseNoDisponible}" data-id-platillo="${p.id_platillo}" data-nombre="${escapeHtml(p.nombre)}" data-precio="${p.precio}" data-descripcion="${escapeHtml(p.descripcion || '')}" data-disponible="${p.disponible}">
                 <div class="dish-image">
                     ${imagenHtml}
                 </div>
                 <div class="dish-info">
-                    <div class="modal-dish-title">${escapeHtml(p.nombre)}</div>
+                    <div class="modal-dish-title">${escapeHtml(p.nombre)} ${badge}</div>
                     <div class="modal-dish-desc">${escapeHtml(p.descripcion ? p.descripcion.substring(0, 60) : 'Sin descripción')}</div>
                     <div class="modal-dish-bottom">
                         <span class="modal-dish-price">$${parseFloat(p.precio).toFixed(2)}</span>
+                        <button class="btn-toggle-disponible" data-id="${p.id_platillo}" data-disponible="${p.disponible}" title="${disponible ? 'Marcar como no disponible' : 'Marcar como disponible'}"><img src="iconos/sync.png" alt="Cambiar disponibilidad" style="width:16px;height:16px;"></button>
                     </div>
                 </div>
             </div>
@@ -170,11 +238,57 @@ function filtrarPlatillosEnModal(termino) {
     
     document.querySelectorAll('.modal-dish-card').forEach(card => {
         card.addEventListener('click', (e) => {
+            if (e.target.closest('.btn-toggle-disponible')) return;
+            const disponible = card.getAttribute('data-disponible') === '1';
+            if (!disponible) {
+                mostrarModalInformativo('Atención', 'Este platillo no está disponible en este momento.', false);
+                return;
+            }
             e.stopPropagation();
             const idPlatillo = card.getAttribute('data-id-platillo');
             const nombre = card.getAttribute('data-nombre');
             const precio = parseFloat(card.getAttribute('data-precio'));
             abrirModalAgregarPlatilloDesdeModal(idPlatillo, nombre, precio);
+        });
+    });
+    
+    document.querySelectorAll('.btn-toggle-disponible').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idPlatillo = btn.getAttribute('data-id');
+            const disponibleActual = btn.getAttribute('data-disponible') === '1';
+            const nuevoEstado = disponibleActual ? 0 : 1;
+            const mensaje = disponibleActual 
+                ? '¿Marcar este platillo como NO DISPONIBLE? Los clientes no podrán pedirlo.' 
+                : '¿Marcar este platillo como DISPONIBLE nuevamente?';
+            
+            mostrarModalConfirmacion(
+                disponibleActual ? 'Deshabilitar platillo' : 'Habilitar platillo',
+                mensaje,
+                () => {
+                    fetch('api/toggle_disponible.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id_platillo: idPlatillo, disponible: nuevoEstado })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.ok) {
+                            const platillo = currentPlatillos.find(p => p.id_platillo == idPlatillo);
+                            if (platillo) platillo.disponible = nuevoEstado;
+                            if (currentModalCategoriaId) cargarPlatillosEnModal(currentModalCategoriaId);
+                            actualizarResumenClienteEnModal();
+                            mostrarModalInformativo('Éxito', `Platillo ${nuevoEstado ? 'disponible' : 'no disponible'}`, true);
+                        } else {
+                            mostrarModalInformativo('Error', data.msg || 'No se pudo actualizar', false);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error al cambiar disponibilidad:', err);
+                        mostrarModalErrorConexion('Error de conexión');
+                    });
+                }
+            );
         });
     });
 }

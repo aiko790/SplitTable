@@ -883,6 +883,65 @@ body { background:#eef2f7; color:#1f2933; }
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+/* ============================================
+   ESTILOS PARA DISPONIBILIDAD DE PLATILLOS
+   ============================================ */
+
+/* Platillo no disponible */
+.modal-dish-card.no-disponible {
+    opacity: 0.7;
+    background: #f8f9fa;
+    border-color: #e9ecef;
+}
+
+/* Etiqueta "NO DISPONIBLE" */
+.badge-no-disponible {
+    display: inline-block;
+    background: #e74c3c;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+/* Botón de toggle disponibilidad (sync) */
+.btn-toggle-disponible {
+    background: none;
+    border: 1px solid #ced4da;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-left: 8px;
+}
+
+.btn-toggle-disponible:hover {
+    background: #f1f3f5;
+    border-color: #adb5bd;
+}
+
+/* Imagen dentro del botón */
+.btn-toggle-disponible img {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+
+/* Ajuste para la línea inferior de la tarjeta */
+.modal-dish-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+}
 
 .modal-dish-bottom {
     display: flex;
@@ -1123,4 +1182,13 @@ body { background:#eef2f7; color:#1f2933; }
     height: 1px;
     background: #eef2f6;
     margin: 12px 0;
+}
+/* ============================================
+   ASEGURAR QUE MODALES DE CONFIRMACIÓN/INFO
+   APAREZCAN SIEMPRE POR ENCIMA DE OTROS
+   ============================================ */
+#modalConfirmacion,
+#modalInformativo,
+#modalErrorConexion {
+    z-index: 10002 !important;
 }

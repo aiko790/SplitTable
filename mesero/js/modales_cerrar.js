@@ -39,16 +39,80 @@ function verificarYBotonCerrar(mesaId) {
         .then(data => {
             console.log('Verificación:', data);
             const btnCerrar = document.getElementById('btnCerrarMesa');
-            if (btnCerrar) {
-                btnCerrar.disabled = !(data.ok && data.todos_entregados);
-            }
+            if (!btnCerrar) return;
+
+            // Habilitar si:
+            // - Mesa vacía (sin clientes ni pedidos)
+            // - O bien, hay pedidos y todos están entregados
+            const habilitar = data.ok && (data.vacia || (data.total_pedidos > 0 && data.todos_entregados));
+            
+            btnCerrar.disabled = !habilitar;
         })
-        .catch(err => console.error('Error verificando pedidos:', err));
+        .catch(err => {
+            console.error('Error verificando pedidos:', err);
+            const btnCerrar = document.getElementById('btnCerrarMesa');
+            if (btnCerrar) btnCerrar.disabled = true;
+        });
 }
 
 function abrirModalCerrarMesa(mesaId) {
     if (!mesaId) return;
 
+    // Primero verificar si la mesa está vacía (sin clientes ni pedidos)
+    fetch(`api/verificar_mesa_vacia.php?id_mesa=${mesaId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok && data.vacia) {
+                // Mesa vacía: mostrar modal de confirmación simple para cancelar toma
+                mostrarModalConfirmacion(
+                    'Cancelar toma de mesa',
+                    'No hay clientes ni platillos asociados a esta mesa. ¿Desea cancelar la toma?',
+                    () => {
+                        liberarMesaVacia(mesaId);
+                    }
+                );
+                return;
+            }
+            
+            // Si no está vacía, continuar con el flujo normal
+            abrirModalCerrarMesaNormal(mesaId);
+        })
+        .catch(err => {
+            console.error('Error al verificar si la mesa está vacía:', err);
+            // Si falla la verificación, mostrar el modal normal por seguridad
+            abrirModalCerrarMesaNormal(mesaId);
+        });
+}
+
+// Función para liberar mesa vacía sin historial ni ticket
+function liberarMesaVacia(mesaId) {
+    fetch('acciones/liberar_mesa_vacia.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_mesa: mesaId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.ok) {
+            mostrarModalInformativo('Éxito', 'Mesa liberada correctamente.', true);
+            if (typeof refreshMesas === 'function') refreshMesas();
+            currentSelectedMesa = null;
+            mostrarContenidoGestion(false);
+            mostrarContenidoDetalle(false);
+            const mesaNumero = document.getElementById('mesaNumero');
+            if (mesaNumero) mesaNumero.innerText = '—';
+        } else {
+            mostrarModalInformativo('Error', data.message || 'No se pudo liberar la mesa.', false);
+        }
+    })
+    .catch(err => {
+        console.error('Error al liberar mesa vacía:', err);
+        mostrarModalErrorConexion('Error de conexión al liberar la mesa.');
+    });
+}
+
+// Función original renombrada para el flujo normal (cuando hay consumos)
+function abrirModalCerrarMesaNormal(mesaId) {
     // Mostrar loading
     const contenedorPagos = document.getElementById('contenedorPagos');
     if (contenedorPagos) contenedorPagos.innerHTML = '<div class="loading">Cargando...</div>';

@@ -11,9 +11,14 @@ try {
     $res = $conexion->query("SELECT id_categoria, nombre FROM categorias_platillo ORDER BY nombre");
     while ($r = $res->fetch_assoc()) $cats[] = $r;
 
-    // Platillos activos y disponibles (incluye imagen)
+    // Platillos activos (incluye los no disponibles también)
     $platillos = [];
-    $stmt = $conexion->prepare("SELECT id_platillo, nombre, descripcion, id_categoria, precio, imagen FROM platillos WHERE activo = 1 AND disponible = 1 ORDER BY nombre");
+    $stmt = $conexion->prepare("
+        SELECT id_platillo, nombre, descripcion, id_categoria, precio, imagen, disponible 
+        FROM platillos 
+        WHERE activo = 1 
+        ORDER BY nombre
+    ");
     $stmt->execute();
     $res = $stmt->get_result();
     while ($p = $res->fetch_assoc()) {

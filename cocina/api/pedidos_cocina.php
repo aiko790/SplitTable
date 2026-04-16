@@ -43,15 +43,20 @@ while ($row = $result->fetch_assoc()) {
     $stmt->execute();
     $detalle = $stmt->get_result();
     
-    $items = [];
+    // Agrupar items iguales (mismo cliente, platillo y comentario)
+    $itemsAgrupados = [];
     while ($item = $detalle->fetch_assoc()) {
-        $items[] = [
-            'cliente' => $item['cliente'],
-            'platillo' => $item['platillo'],
-            'categoria' => $item['categoria'],
-            'cantidad' => (int)$item['cantidad'],
-            'comentario' => $item['comentario'] ?? ''
-        ];
+        $key = $item['cliente'] . '|' . $item['platillo'] . '|' . ($item['comentario'] ?? '');
+        if (!isset($itemsAgrupados[$key])) {
+            $itemsAgrupados[$key] = [
+                'cliente' => $item['cliente'],
+                'platillo' => $item['platillo'],
+                'categoria' => $item['categoria'],
+                'cantidad' => 0,
+                'comentario' => $item['comentario'] ?? ''
+            ];
+        }
+        $itemsAgrupados[$key]['cantidad'] += (int)$item['cantidad'];
     }
     $stmt->close();
     
@@ -59,7 +64,7 @@ while ($row = $result->fetch_assoc()) {
         'id_pedido' => $id_pedido,
         'nombre_mesa' => $row['nombre_mesa'],
         'fecha_creacion' => $row['fecha_creacion'],
-        'items' => $items
+        'items' => array_values($itemsAgrupados)
     ];
 }
 

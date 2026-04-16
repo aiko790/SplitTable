@@ -79,7 +79,6 @@ $init = [
 $cssPath = __DIR__ . '/dashboard.css';
 $cssVer = file_exists($cssPath) ? filemtime($cssPath) : time();
 
-
 $server_time = date('H:i:s');
 ?>
 <!doctype html>
@@ -88,7 +87,9 @@ $server_time = date('H:i:s');
   <meta charset="utf-8">
   <title>Panel Mesero — Dashboard</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="dashboard.css?v=<?= $cssVer ?>">
+  <link rel="stylesheet" href="css/base.css?v=<?= filemtime('css/base.css') ?>">
+  <link rel="stylesheet" href="css/dashboard.css?v=<?= filemtime('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="css/modales.css?v=<?= filemtime('css/modales.css') ?>">
 </head>
 <body>
 
@@ -113,8 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 
     <nav class="top-actions">
-      <a class="btn small" href="historial.php">Historial</a>
-      <a class="btn small" href="estadisticas.php">Estadísticas</a>
       <a class="btn small danger" href="../auth/logout.php">Salir</a>
     </nav>
   </header>
@@ -532,6 +531,7 @@ document.addEventListener('DOMContentLoaded', function() {
   </template>
 
   <script id="init-data" type="application/json"><?= json_encode($init, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?></script>
+  
   <script src="js/globales.js"></script>
   <script src="js/modales_base.js?"></script>
   <script src="js/modales_resumen.js"></script>
