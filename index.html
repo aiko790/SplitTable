@@ -1,186 +1,361 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Menú Interactivo</title>
-
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f1ee;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-.container {
-    background: #fff;
-    padding: 40px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,.15);
-}
-a {
-    display: block;
-    margin: 12px 0;
-    text-decoration: none;
-}
-button {
-    width: 100%;
-    padding: 12px;
-    border: 0;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-}
-.admin {
-    background: #8b0000;
-    color: #fff;
-}
-.mesero {
-    background: #2e8b57;
-    color: #fff;
-}
-.registro {
-    background: #555;
-    color: #fff;
-}
-button:hover {
-    opacity: 0.9;
-}
-
-/* ===== ESTILOS DEL MODAL (compatibles con tu diseño) ===== */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-.modal.show {
-    display: flex;
-    animation: fadeIn 0.2s ease;
-}
-.modal-content {
-    background: white;
-    border-radius: 16px;
-    padding: 24px 32px;
-    text-align: center;
-    min-width: 260px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-}
-.modal-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 40px;
-    margin: 0 auto 16px;
-}
-.modal-success {
-    background: #2ecc71;
-    position: relative;
-}
-.modal-success::before {
-    content: "✓";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 24px;
-    color: white;
-    font-weight: bold;
-}
-.modal-error {
-    background: #e74c3c;
-    position: relative;
-}
-.modal-error::before {
-    content: "!";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 24px;
-    color: white;
-    font-weight: bold;
-}
-.modal-message {
-    font-size: 0.875rem;
-    color: #2d3436;
-    margin-bottom: 20px;
-}
-.modal-btn {
-    background: #8b0000;
-    color: white;
-    border: none;
-    padding: 8px 24px;
-    border-radius: 30px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    font-family: inherit;
-}
-.modal-btn:hover {
-    background: #6b0000;
-}
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-</style>
-</head>
-
-<body>
-<div class="container">
-    <h1>Menú Interactivo</h1>
-    <p>Selecciona una opción</p>
-
-    <a href="auth/login_admin.html"><button class="admin">Administrador</button></a>
-    <a href="auth/login_mesero.html"><button class="mesero">Mesero</button></a>
-    <a href="auth/login_cocinero.html"><button class="mesero">Cocinero</button></a>
-    <!--<a href="auth/registrar_admin.html"><button class="registro">Registrar administrador</button>-->
-</div>
-
-<!-- Modal de notificación -->
-<div id="notificationModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-icon" id="modalIcon"></div>
-        <p class="modal-message" id="modalMessage"></p>
-        <button class="modal-btn" onclick="closeModal()">Aceptar</button>
-    </div>
-</div>
-
-<script>
-    function showModal(message, isSuccess = true) {
-        const modal = document.getElementById('notificationModal');
-        const modalIcon = document.getElementById('modalIcon');
-        const modalMessage = document.getElementById('modalMessage');
-        modalIcon.className = 'modal-icon ' + (isSuccess ? 'modal-success' : 'modal-error');
-        modalMessage.textContent = message;
-        modal.classList.add('show');
-        setTimeout(() => closeModal(), 3000);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SplitTable - Acceso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+   <style>
+    :root {
+        --bg-body: #0a0a0a;
+        --panel-left: #121212;
+        --text-main: #ffffff;
+        --text-muted: #a0a0a0;
+        --accent-white: #ffffff;
+        --bg-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop');
     }
 
-    function closeModal() {
-        const modal = document.getElementById('notificationModal');
-        modal.classList.remove('show');
-        // Limpiar parámetro logout de la URL después de mostrar
-        const url = new URL(window.location);
-        if (url.searchParams.has('logout')) {
-            url.searchParams.delete('logout');
-            window.history.replaceState({}, document.title, url.pathname);
+    body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-body);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: var(--text-main);
+    }
+
+    /* Contenedor principal estilo Monitor */
+    .main-container {
+        display: flex;
+        width: 1200px;
+        height: 660px;
+        background-color: var(--panel-left);
+        border-radius: 30px;
+        overflow: hidden;
+        border: 8px solid #222;
+        box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+        position: relative;
+    }
+
+    /* LADO IZQUIERDO (Panel de Acceso) */
+    .left-panel {
+        width: 42%;
+        padding: 40px 60px;
+        display: flex;
+        flex-direction: column;
+        background-color: #121212;
+        z-index: 2;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .brand-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 1.3rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 40px;
+    }
+
+    .user-section-title {
+        color: var(--text-main);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 25px;
+        text-align: center;
+        opacity: 0.7;
+    }
+
+    /* Círculo central con efecto ST */
+    .st-circle {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(145deg, #2a2a2a, #0f0f0f);
+        border-radius: 50%;
+        margin: 0 auto 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 4px solid #1a1a1a;
+        box-shadow: 
+            inset 0 5px 10px rgba(255, 255, 255, 0.05),
+            0 15px 35px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+    }
+
+    .st-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .st-circle span {
+        font-size: 3.2rem;
+        font-weight: 800;
+        background: linear-gradient(to bottom, #fff 30%, #888 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -2px;
+    }
+
+    .instruction-text {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    /* Botones de Navegación */
+    .menu-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .menu-options a {
+        text-decoration: none;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
+        border-color: #555;
+        color: #fff;
+    }
+
+    button.primary-btn {
+        background-color: var(--accent-white);
+        color: #000;
+        font-weight: 700;
+        border: none;
+        box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+    }
+
+    button.primary-btn:hover {
+        background-color: #e0e0e0;
+        color: #000;
+    }
+
+    /* LADO DERECHO (Imagen y Bienvenida) */
+    .right-panel {
+        width: 58%;
+        background-image: var(--bg-image);
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 60px;
+    }
+
+    .right-panel::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 10%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
+    }
+
+    .top-nav {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        display: flex;
+        gap: 25px;
+        z-index: 5;
+    }
+
+    .top-nav span {
+        color: var(--text-main);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        opacity: 0.6;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .top-nav span:hover {
+        opacity: 1;
+    }
+
+    .welcome-text {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .welcome-text h1 {
+        font-size: 5rem;
+        font-weight: 800;
+        margin: 0;
+        background: linear-gradient(to bottom, #fff 40%, #999 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -3px;
+    }
+
+    .welcome-text p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin-top: 5px;
+    }
+
+    /* MODAL DE NOTIFICACIÓN */
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: #1a1a1a;
+        border-radius: 24px;
+        padding: 40px;
+        text-align: center;
+        border: 1px solid #333;
+        width: 320px;
+        animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pop {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
         }
     }
 
-    // Detectar si venimos de cerrar sesión
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('logout') && urlParams.get('logout') === '1') {
-        showModal('Sesión cerrada correctamente', true);
+    .modal-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
     }
-</script>
+
+    .modal-success {
+        background: #00ca4e;
+        color: #000;
+    }
+
+    .modal-error {
+        background: #ff605c;
+        color: #fff;
+    }
+</style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="brand-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                SPLITTABLE
+            </div>
+
+            <div class="user-section-title"></div>
+
+            <div class="st-circle">
+                <span>ST</span>
+                </div>
+
+            <div class="instruction-text">Selecciona tu rol para ingresar</div>
+
+            <div class="menu-options">
+                <a href="auth/login_admin.html"><button>Administrador</button></a>
+                <a href="auth/login_mesero.html"><button>Mesero</button></a>
+                <a href="auth/login_cocinero.html"><button class="primary-btn">Cocinero</button></a>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="top-nav">
+                <span>Home</span>
+                <span>About</span>
+                <span>Register</span>
+            </div>
+
+            <div class="welcome-text">
+                <h1>SplitTable</h1>
+                <p>Gestión inteligente para restaurantes modernos.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon"></div>
+            <h3 id="modalStatus" style="margin: 0 0 10px;">¡Listo!</h3>
+            <p id="modalMessage" style="color: #aaa; margin-bottom: 25px;"></p>
+            <button onclick="closeModal()" class="primary-btn" style="width: auto; padding: 10px 40px;">Entendido</button>
+        </div>
+    </div>
+
+    <script>
+        function showModal(message, isSuccess = true) {
+            const modal = document.getElementById('notificationModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalMessage = document.getElementById('modalMessage');
+            
+            modalIcon.className = 'modal-icon ' + (isSuccess ? 'modal-success' : 'modal-error');
+            modalIcon.innerHTML = isSuccess ? '✓' : '✕';
+            modalMessage.textContent = message;
+            modal.classList.add('show');
+            
+            setTimeout(() => closeModal(), 4000);
+        }
+
+        function closeModal() {
+            document.getElementById('notificationModal').classList.remove('show');
+            const url = new URL(window.location);
+            if (url.searchParams.has('logout')) {
+                url.searchParams.delete('logout');
+                window.history.replaceState({}, document.title, url.pathname);
+            }
+        }
+
+        // Detectar cierre de sesión por URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('logout') === '1') {
+            showModal('Tu sesión se ha cerrado correctamente.', true);
+        }
+    </script>
 </body>
 </html>
