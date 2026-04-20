@@ -5,240 +5,262 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login Cocinero</title>
 <style>
-/* ===== ESTILOS UNIFICADOS ===== */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa, #e9ecef);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.login-container {
-    width: 100%;
-    max-width: 450px;
-    margin: 20px;
-}
-.card {
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    overflow: hidden;
-    border: 1px solid #eef2f4;
-}
-.card-header {
-    padding: 20px 28px;
-    border-bottom: 1px solid #eef2f4;
-    background: #fafcfd;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.card-header-icon {
-    width: 4px;
-    height: 28px;
-    background: #8b0000;
-    border-radius: 2px;
-}
-.card-header h2 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #2d3436;
-    margin: 0;
-}
-.card-header p {
-    font-size: 0.75rem;
-    color: #7f8c8d;
-    margin-top: 4px;
-}
-.form-mesa {
-    padding: 28px;
-}
-.form-group {
-    margin-bottom: 20px;
-}
-.form-group label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #2d3436;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-.form-group input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-    background: #ffffff;
-    font-family: inherit;
-}
-.form-group input:focus {
-    outline: none;
-    border-color: #8b0000;
-    box-shadow: 0 0 0 3px rgba(139,0,0,0.08);
-}
-.error-message {
-    font-size: 0.6875rem;
-    color: #e74c3c;
-    margin-top: 6px;
-    min-height: 18px;
-    display: none;
-}
-.error-message.show {
-    display: block;
-}
-.btn-submit {
-    width: 100%;
-    background: #8b0000;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-family: inherit;
-}
-.btn-submit:hover { background: #6b0000; }
-.btn-submit:disabled { background: #bdc3c7; cursor: not-allowed; }
-.back-link {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 0.75rem;
-}
-.back-link a {
-    color: #8b0000;
-    text-decoration: none;
-    font-weight: 500;
-}
-.back-link a:hover { text-decoration: underline; }
+    :root {
+        --bg-body: #0a0a0a;
+        --panel-left: #121212;
+        --text-main: #ffffff;
+        --text-muted: #a0a0a0;
+        --accent-white: #ffffff;
+        /* Imagen optimizada para cocina */
+        --bg-image: url('https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=2070&auto=format&fit=crop');
+    }
 
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-.modal.show { display: flex; animation: fadeIn 0.2s ease; }
-.modal-content {
-    background: white;
-    border-radius: 24px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    padding: 28px 32px;
-    text-align: center;
-    min-width: 280px;
-    animation: slideUp 0.25s ease;
-}
-.modal-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 40px;
-    margin: 0 auto 16px;
-}
-.modal-success {
-    background: #2ecc71;
-    position: relative;
-}
-.modal-success::before {
-    content: "✓";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 24px;
-    color: white;
-    font-weight: bold;
-}
-.modal-error {
-    background: #e74c3c;
-    position: relative;
-}
-.modal-error::before {
-    content: "!";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 24px;
-    color: white;
-    font-weight: bold;
-}
-.modal-message {
-    font-size: 0.875rem;
-    color: #2d3436;
-    margin-bottom: 20px;
-    line-height: 1.4;
-}
-.modal-btn {
-    background: #8b0000;
-    color: white;
-    border: none;
-    padding: 10px 28px;
-    border-radius: 30px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-.modal-btn:hover { background: #6b0000; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-body);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: var(--text-main);
+        overflow: hidden;
+    }
+
+    input:invalid, input:required {
+        box-shadow: none !important;
+    }
+
+    .main-container {
+        display: flex;
+        width: 1100px;
+        height: 600px;
+        background-color: var(--panel-left);
+        border-radius: 30px;
+        overflow: hidden;
+        border: 4px solid #222;
+        box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+        position: relative;
+    }
+
+    .left-panel {
+        width: 42%;
+        padding: 40px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background-color: #121212;
+        z-index: 2;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .brand-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        color: var(--accent-white);
+        text-transform: uppercase;
+    }
+
+    .st-circle {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(145deg, #2a2a2a, #0f0f0f);
+        border-radius: 50%;
+        margin: 0 auto 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 4px solid #1a1a1a;
+        box-shadow: inset 0 5px 10px rgba(255, 255, 255, 0.05), 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+
+    .st-circle span {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(to bottom, #fff 30%, #888 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        color: white;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--accent-white);
+        background: #222;
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+    }
+
+    .error-message {
+        font-size: 0.7rem;
+        color: #ff605c;
+        margin-top: 5px;
+        display: none;
+        font-weight: 500;
+    }
+
+    .error-message.show { display: block; }
+
+    .btn-submit {
+        width: 100%;
+        padding: 14px;
+        border-radius: 10px;
+        border: none;
+        background-color: var(--accent-white);
+        color: #000;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .btn-submit:hover { 
+        background-color: #e0e0e0; 
+        transform: translateY(-2px);
+    }
+
+    .back-link { text-align: center; margin-top: 25px; }
+    .back-link a { 
+        color: var(--text-muted); 
+        text-decoration: none; 
+        font-size: 0.8rem; 
+    }
+    .back-link a:hover { color: var(--accent-white); }
+
+    .right-panel {
+        width: 58%;
+        background-image: var(--bg-image);
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 60px;
+    }
+
+    .right-panel::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+    }
+
+    .welcome-text { position: relative; z-index: 2; }
+    .welcome-text h1 { 
+        font-size: 4rem; 
+        margin: 0; 
+        letter-spacing: -2px; 
+        background: linear-gradient(to bottom, #fff 40%, #999 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .welcome-text p { color: var(--text-muted); font-size: 1.1rem; margin-top: 5px; }
+
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+        background: #1a1a1a;
+        border-radius: 24px;
+        padding: 35px;
+        text-align: center;
+        border: 1px solid #333;
+        width: 320px;
+        animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .modal-icon { width: 55px; height: 55px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
+    .modal-success { background: #ffffff; color: #000; }
+    .modal-error { background: #ff605c; color: #fff; }
+    .modal-btn { background: white; color: black; border: none; padding: 12px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
+
+    @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>
 </head>
 <body>
-<div class="login-container">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-header-icon"></div>
-            <div>
-                <h2>Cocinero</h2>
-                <p>Ingresa tus credenciales</p>
-            </div>
+
+<div class="main-container">
+    <div class="left-panel">
+        <div class="brand-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6.13 4 4 0 0 1 14 6a4 4 0 0 1 2.59 7.87L17 21H7z"></path><line x1="12" y1="13" x2="12" y2="15"></line></svg>
+            Cocinero Access
         </div>
-        <div class="form-mesa">
-            <form id="loginForm" method="POST" action="php/validar_cocinero.php">
-                <div class="form-group">
-                    <label>Correo</label>
-                    <input type="email" name="correo" id="correo" autocomplete="email" required>
-                    <div class="error-message" id="error-correo"></div>
-                </div>
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" name="password" id="password" autocomplete="current-password" required>
-                    <div class="error-message" id="error-password"></div>
-                </div>
-                <button type="submit" class="btn-submit" id="btnSubmit">Entrar</button>
-            </form>
-            <div class="back-link">
-                <a href="../index.html">← Volver</a>
+
+        <div class="st-circle">
+            <span>CC</span>
+        </div>
+
+        <form id="loginForm" method="POST" action="php/validar_cocinero.php" novalidate>
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" name="correo" id="correo" autocomplete="email" placeholder="chef@restaurante.com">
+                <div class="error-message" id="error-correo"></div>
             </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" name="password" id="password" autocomplete="current-password" placeholder="••••••••">
+                <div class="error-message" id="error-password"></div>
+            </div>
+            <button type="submit" class="btn-submit" id="btnSubmit">Acceder a Cocina</button>
+        </form>
+
+        <div class="back-link">
+            <a href="../index.html">← Volver al portal</a>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="welcome-text">
+            <h1>Calidad.</h1>
+            <p>Gestión de comandas y producción en tiempo real.</p>
         </div>
     </div>
 </div>
 
-<!-- Modal de notificación -->
 <div id="notificationModal" class="modal">
     <div class="modal-content">
         <div class="modal-icon" id="modalIcon"></div>
         <p class="modal-message" id="modalMessage"></p>
-        <button class="modal-btn" onclick="closeModal()">Aceptar</button>
+        <button class="modal-btn" onclick="closeModal()">Continuar</button>
     </div>
 </div>
 
@@ -248,10 +270,12 @@ function showModal(message, isSuccess = true) {
     const modalIcon = document.getElementById('modalIcon');
     const modalMessage = document.getElementById('modalMessage');
     modalIcon.className = 'modal-icon ' + (isSuccess ? 'modal-success' : 'modal-error');
+    modalIcon.innerHTML = isSuccess ? '✓' : '✕';
     modalMessage.textContent = message;
     modal.classList.add('show');
-    setTimeout(() => closeModal(), 3000);
+    if(isSuccess) setTimeout(() => closeModal(), 3000);
 }
+
 function closeModal() {
     document.getElementById('notificationModal').classList.remove('show');
 }
@@ -263,39 +287,28 @@ const errorPass = document.getElementById('error-password');
 
 function validarCorreo() {
     const val = correoInput.value.trim();
-    if (val === '') {
-        errorCorreo.textContent = '';
-        errorCorreo.classList.remove('show');
-        return true;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(val)) {
-        errorCorreo.textContent = 'Correo electrónico inválido';
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (val === '') { errorCorreo.classList.remove('show'); return false; }
+    if (!regex.test(val)) {
+        errorCorreo.textContent = 'Email no válido';
         errorCorreo.classList.add('show');
         return false;
-    } else {
-        errorCorreo.textContent = '';
-        errorCorreo.classList.remove('show');
-        return true;
     }
+    errorCorreo.classList.remove('show');
+    return true;
 }
+
 function validarPassword() {
     const val = passInput.value.trim();
-    if (val === '') {
-        errorPass.textContent = '';
-        errorPass.classList.remove('show');
-        return true;
-    }
     if (val.length < 4) {
         errorPass.textContent = 'Mínimo 4 caracteres';
         errorPass.classList.add('show');
         return false;
-    } else {
-        errorPass.textContent = '';
-        errorPass.classList.remove('show');
-        return true;
     }
+    errorPass.classList.remove('show');
+    return true;
 }
+
 correoInput.addEventListener('input', validarCorreo);
 passInput.addEventListener('input', validarPassword);
 
@@ -306,10 +319,8 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (submitLock) return;
     
-    const correoValido = validarCorreo();
-    const passValido = validarPassword();
-    if (!correoValido || !passValido) {
-        showModal('Por favor completa los campos correctamente', false);
+    if (!validarCorreo() || !validarPassword()) {
+        showModal('Por favor verifica tus credenciales', false);
         return;
     }
     
@@ -334,24 +345,13 @@ form.addEventListener('submit', async (e) => {
             showModal(result.message, false);
         }
     } catch (err) {
-        showModal('Error de conexión. Intenta de nuevo.', false);
+        showModal('Error en la conexión', false);
     } finally {
         submitLock = false;
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
 });
-
-// Mostrar modal si hay parámetros de logout o error
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.has('logout') && urlParams.get('logout') === '1') {
-    showModal('Sesión cerrada correctamente', true);
-    window.history.replaceState({}, document.title, window.location.pathname);
-}
-if (urlParams.has('error') && urlParams.get('error') === '1') {
-    showModal('Credenciales incorrectas o cuenta desactivada', false);
-    window.history.replaceState({}, document.title, window.location.pathname);
-}
 </script>
 </body>
 </html>
