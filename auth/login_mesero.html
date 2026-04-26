@@ -11,7 +11,7 @@
         --text-main: #ffffff;
         --text-muted: #a0a0a0;
         --accent-white: #ffffff;
-        --bg-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop');
+        --bg-image: url('../img_genericos/imagen_vaso.avif');
     }
 
     body {
@@ -45,7 +45,7 @@
 
     .left-panel {
         width: 42%;
-        padding: 40px 50px;
+        padding: 30px 50px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -60,22 +60,33 @@
         gap: 10px;
         font-weight: 800;
         font-size: 1.2rem;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         color: var(--accent-white);
         text-transform: uppercase;
     }
 
+    /* Círculo con logo, más grande y sin deformarse */
     .st-circle {
-        width: 100px;
-        height: 100px;
+        width: 180px;
+        height: 180px;
+        min-width: 180px;
+        min-height: 180px;
         background: linear-gradient(145deg, #2a2a2a, #0f0f0f);
         border-radius: 50%;
-        margin: 0 auto 25px;
+        margin: 0 auto 20px;
         display: flex;
         justify-content: center;
         align-items: center;
         border: 4px solid #1a1a1a;
         box-shadow: inset 0 5px 10px rgba(255, 255, 255, 0.05), 0 15px 35px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .st-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .st-circle span {
@@ -88,13 +99,13 @@
         letter-spacing: -1px;
     }
 
-    .form-group { margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
     
     .form-group label {
         display: block;
         font-size: 0.75rem;
         color: var(--text-muted);
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         text-transform: uppercase;
         font-weight: 700;
         letter-spacing: 0.5px;
@@ -102,7 +113,7 @@
 
     .form-group input {
         width: 100%;
-        padding: 12px 15px;
+        padding: 11px 15px;
         background: #1a1a1a;
         border: 1px solid #333;
         border-radius: 10px;
@@ -131,7 +142,7 @@
 
     .btn-submit {
         width: 100%;
-        padding: 14px;
+        padding: 13px;
         border-radius: 10px;
         border: none;
         background-color: var(--accent-white);
@@ -139,7 +150,7 @@
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 10px;
+        margin-top: 8px;
         font-size: 0.9rem;
         text-transform: uppercase;
     }
@@ -149,7 +160,7 @@
         transform: translateY(-2px);
     }
 
-    .back-link { text-align: center; margin-top: 25px; }
+    .back-link { text-align: center; margin-top: 20px; }
     .back-link a { 
         color: var(--text-muted); 
         text-decoration: none; 
@@ -226,8 +237,9 @@
             Mesero Access
         </div>
 
+        <!-- Logo en lugar de MS -->
         <div class="st-circle">
-            <span>MS</span>
+            <img src="../img_genericos/descarga.png" alt="Logo">
         </div>
 
         <form id="loginForm" method="POST" action="php/validar_mesero.php" novalidate>

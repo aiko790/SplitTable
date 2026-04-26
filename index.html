@@ -12,7 +12,7 @@
         --text-main: #ffffff;
         --text-muted: #a0a0a0;
         --accent-white: #ffffff;
-        --bg-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop');
+        --bg-image: url('img_genericos/imagen_vaso.avif');
     }
 
     body {
@@ -26,7 +26,6 @@
         color: var(--text-main);
     }
 
-    /* Contenedor principal estilo Monitor */
     .main-container {
         display: flex;
         width: 1200px;
@@ -39,7 +38,6 @@
         position: relative;
     }
 
-    /* LADO IZQUIERDO (Panel de Acceso) */
     .left-panel {
         width: 42%;
         padding: 40px 60px;
@@ -69,10 +67,10 @@
         opacity: 0.7;
     }
 
-    /* Círculo central con efecto ST */
+    /* Círculo central MÁS GRANDE */
     .st-circle {
-        width: 120px;
-        height: 120px;
+        width: 180px;
+        height: 180px;
         background: linear-gradient(145deg, #2a2a2a, #0f0f0f);
         border-radius: 50%;
         margin: 0 auto 25px;
@@ -109,7 +107,6 @@
         margin-bottom: 30px;
     }
 
-    /* Botones de Navegación */
     .menu-options {
         display: flex;
         flex-direction: column;
@@ -153,7 +150,6 @@
         color: #000;
     }
 
-    /* LADO DERECHO (Imagen y Bienvenida) */
     .right-panel {
         width: 58%;
         background-image: var(--bg-image);
@@ -220,7 +216,6 @@
         margin-top: 5px;
     }
 
-    /* MODAL DE NOTIFICACIÓN */
     .modal {
         display: none;
         position: fixed;
@@ -293,8 +288,8 @@
             <div class="user-section-title"></div>
 
             <div class="st-circle">
-                <span>ST</span>
-                </div>
+                <img src="img_genericos/descarga.png" alt="Logo">
+            </div>
 
             <div class="instruction-text">Selecciona tu rol para ingresar</div>
 
@@ -307,9 +302,6 @@
 
         <div class="right-panel">
             <div class="top-nav">
-                <span>Home</span>
-                <span>About</span>
-                <span>Register</span>
             </div>
 
             <div class="welcome-text">
@@ -351,7 +343,6 @@
             }
         }
 
-        // Detectar cierre de sesión por URL
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('logout') === '1') {
             showModal('Tu sesión se ha cerrado correctamente.', true);
