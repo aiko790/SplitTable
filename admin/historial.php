@@ -1,9 +1,6 @@
 <?php
 require_once __DIR__ . "/../config/admin_session.php";
-if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
-    header("Location: ../index.html");
-    exit();
-}
+
 $nombre_admin = $_SESSION['nombre_admin'] ?? 'Administrador';
 ?>
 <!DOCTYPE html>
@@ -12,15 +9,14 @@ $nombre_admin = $_SESSION['nombre_admin'] ?? 'Administrador';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historial & Reportes | Admin</title>
-    <link rel="stylesheet" href="css/cocineros.css">
     <link rel="stylesheet" href="css/historial.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="header">
     <div class="header-content">
         <div>
-            <h1 class="header-title">📊 Historial & Reportes</h1>
+            <h1 class="header-title">Historial & Reportes</h1>
             <p class="header-subtitle">Dashboard ejecutivo de ventas (últimos 7 días)</p>
         </div>
         <a href="dashboard.php" class="btn-back">← Volver al Dashboard</a>

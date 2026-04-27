@@ -20,6 +20,11 @@ function inicializarModalCerrar() {
 
     radiosTipo.forEach(radio => {
         radio.addEventListener('click', (e) => {
+            // Quitar 'active' de todos los botones tipo
+            radiosTipo.forEach(r => r.classList.remove('active'));
+            // Agregar 'active' al botón clickeado
+            radio.classList.add('active');
+            
             const valor = radio.getAttribute('data-value');
             tipoCuentaActual = valor === 'separada' ? 'separada' : 'conjunta';
             actualizarVistaPagos();

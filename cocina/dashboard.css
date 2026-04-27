@@ -1,275 +1,424 @@
 /* ============================================
-   DASHBOARD.CSS - Panel de cocina (versión mejorada)
+   DASHBOARD.CSS - Panel de cocina
+   Tema oscuro + barra MONOCROMO + barra lateral
+   Scroll completo de página
    ============================================ */
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: #f8fafc;
+    background: #0a0a0a;
+    color: #e0e0e0;
     min-height: 100vh;
-    color: #1e293b;
+    overflow-y: auto;
 }
 
-/* Header */
-.header {
-    background: #0f172a;
-    border-bottom: 1px solid #334155;
+/* ========== BARRA SUPERIOR ========== */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    padding: 0 16px;
+    background: #ffffff;
+    color: #1f2933;
+    border-bottom: 1px solid #e5e7eb;
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
-.header-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 16px 32px;
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.restaurant-name {
+    font-size: 21px;
+    font-weight: 700;
+    color: #1f2933;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.topcenter {
+    display: flex;
+    align-items: center;
+}
+
+.clock {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2933;
+    background: #f3f4f6;
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.clock::before {
+    content: "🕒";
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.top-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    background: #8b0000;
+    color: white;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background: #a00000;
+    transform: translateY(-1px);
+}
+
+.btn.small {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+}
+
+/* ========== LAYOUT PRINCIPAL ========== */
+.cocina-layout {
+    display: flex;
+    min-height: calc(100vh - 64px);
+}
+
+/* ========== SIDEBAR ========== */
+.sidebar-mesas {
+    width: 200px;
+    background: #121212;
+    border-right: 1px solid #2a2a2a;
+    padding: 16px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+}
+
+.sidebar-mesas h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #777;
+    margin-bottom: 12px;
+}
+
+.lista-mesas {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.item-mesa {
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: default;
+    font-size: 13px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
+    color: #666;
+    transition: all 0.15s;
 }
 
-.header-title {
-    font-size: 1.5rem;
+.item-mesa.con-pedidos {
+    color: #ffffff;
     font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 4px;
-    letter-spacing: -0.02em;
+    cursor: pointer;
 }
 
-.header-subtitle {
-    font-size: 0.875rem;
-    color: #94a3b8;
+.item-mesa.con-pedidos:hover {
+    background: #1f1f1f;
 }
 
-.btn-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: #334155;
-    color: #f1f5f9;
-    text-decoration: none;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: background 0.2s ease;
-    border: 1px solid #475569;
+.estado-mesa {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
 }
 
-.btn-back:hover {
-    background: #475569;
-    color: #ffffff;
+.estado-mesa.ocupada {
+    background: #e67e22;
 }
 
-/* Container */
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 32px;
+.estado-mesa.libre {
+    background: #444;
 }
 
-/* Grid de pedidos */
-.orders-grid {
+/* ========== ÁREA DE PEDIDOS ========== */
+.pedidos-area {
+    flex: 1;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-/* Card de pedido */
-.order-card {
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-    border: 1px solid #e2e8f0;
+/* ========== TARJETA DE MESA ========== */
+.mesa-card {
+    background: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
     overflow: hidden;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
     position: relative;
 }
 
-.order-card:hover {
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-    border-color: #cbd5e1;
+/* Borde izquierdo de color según urgencia */
+.mesa-card.borde-izq-verde {
+    border-left: 4px solid #2ecc71;
+}
+.mesa-card.borde-izq-naranja {
+    border-left: 4px solid #e67e22;
+}
+.mesa-card.borde-izq-rojo {
+    border-left: 4px solid #e74c3c;
 }
 
-/* Badge de "Nuevo" */
-.badge-new {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: #3b82f6;
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 30px;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-    box-shadow: 0 2px 4px rgba(59,130,246,0.3);
-    z-index: 10;
-    animation: pulse-new 1.5s ease-in-out 2;
-}
-
-@keyframes pulse-new {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.02); }
-}
-
-.card-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid #f1f5f9;
-    background: #fafcff;
+.mesa-card-header {
+    padding: 10px 16px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #2a2a2a;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 8px;
 }
 
-.card-header h3 {
-    font-size: 1.125rem;
+.mesa-card-header h3 {
+    font-size: 1rem;
     font-weight: 600;
-    color: #0f172a;
-    margin: 0;
-    letter-spacing: -0.01em;
+    color: #ffffff;
 }
 
-.card-header p {
-    font-size: 0.75rem;
-    color: #64748b;
-    margin-top: 4px;
+.info-adicional {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.8rem;
+    color: #a0a0a0;
+}
+
+.tiempo-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.7rem;
+}
+
+.tiempo-badge.verde {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+}
+.tiempo-badge.naranja {
+    background: rgba(230, 126, 34, 0.15);
+    color: #e67e22;
+}
+.tiempo-badge.rojo {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+}
+
+.badge-new {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #8b0000;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    z-index: 5;
 }
 
 .badge-status {
-    background: #e2e8f0;
-    color: #334155;
-    padding: 4px 12px;
-    border-radius: 30px;
+    background: #2a2a2a;
+    color: #d0d0d0;
+    padding: 4px 10px;
+    border-radius: 20px;
     font-size: 0.7rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
 }
 
-/* Tabla de platillos */
-.table-wrapper {
-    overflow-x: auto;
-    padding: 0 24px;
+/* ========== SUBTARJETA DE PEDIDO ========== */
+.pedido-subcard {
+    margin: 8px 12px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 10px;
+    border-left: 4px solid #444; /* se sobreescribe con clases */
 }
 
+.pedido-subcard.borde-verde {
+    border-left-color: #2ecc71;
+}
+.pedido-subcard.borde-naranja {
+    border-left-color: #e67e22;
+}
+.pedido-subcard.borde-rojo {
+    border-left-color: #e74c3c;
+}
+
+.pedido-subcard-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+    color: #a0a0a0;
+}
+
+/* Tabla */
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.8125rem;
+    font-size: 0.8rem;
 }
 
 .data-table th {
     text-align: left;
-    padding: 14px 8px;
-    background: #ffffff;
+    padding: 6px 4px;
+    background: transparent;
     font-weight: 600;
-    color: #475569;
-    font-size: 0.7rem;
+    color: #a0a0a0;
+    font-size: 0.65rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid #e2e8f0;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid #2a2a2a;
 }
 
 .data-table td {
-    padding: 12px 8px;
-    border-bottom: 1px solid #f1f5f9;
-    vertical-align: top;
-    color: #334155;
+    padding: 6px 4px;
+    border-bottom: 1px solid #1f1f1f;
+    vertical-align: middle;
+    color: #e0e0e0;
 }
 
 .data-table tr:last-child td {
     border-bottom: none;
 }
 
-.comentario {
-    color: #64748b;
-    font-style: italic;
+.cant-badge {
+    display: inline-block;
+    background: #8b0000;
+    color: white;
+    font-weight: 600;
     font-size: 0.75rem;
-    max-width: 200px;
+    min-width: 24px;
+    text-align: center;
+    padding: 1px 6px;
+    border-radius: 10px;
 }
 
-/* Acciones del pedido */
-.card-actions {
-    padding: 16px 24px 20px;
+.comentario {
+    color: #cd7f32;
+    font-style: italic;
+    font-size: 0.7rem;
+    max-width: 160px;
+}
+
+/* Acciones de pedido */
+.pedido-acciones {
+    margin-top: 8px;
     display: flex;
     justify-content: flex-end;
-    border-top: 1px solid #f1f5f9;
-    background: #fafcff;
 }
 
-.btn-listo {
-    background: #10b981;
-    color: white;
+.btn-listo-individual {
+    background: #2ecc71;
+    color: #000;
     border: none;
-    padding: 10px 24px;
-    border-radius: 10px;
-    font-size: 0.8125rem;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.1s ease;
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background 0.15s;
 }
 
-.btn-listo:hover {
-    background: #059669;
-    transform: scale(1.02);
+.btn-listo-individual:hover {
+    background: #27ae60;
 }
 
-/* Estado vacío */
+/* Botón marcar todo listo */
+.card-actions {
+    padding: 10px 16px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #2a2a2a;
+    background: #1a1a1a;
+}
+
+.btn-listo-mesa {
+    background: #2ecc71;
+    color: #000;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-listo-mesa:hover {
+    background: #27ae60;
+}
+
+/* ========== VACÍO ========== */
 .empty-state {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 48px 32px;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    border: 1px solid #e2e8f0;
+    padding: 60px 20px;
+    color: #a0a0a0;
 }
 
 .empty-state p {
-    color: #64748b;
-    font-size: 0.875rem;
+    font-size: 1rem;
     margin-bottom: 8px;
 }
 
-.empty-state small {
-    color: #94a3b8;
-    font-size: 0.75rem;
-}
-
-/* Actualización automática */
-.auto-refresh {
-    text-align: right;
-    font-size: 0.6875rem;
-    color: #94a3b8;
-    margin-top: 16px;
-    padding: 8px 0;
-}
-
-/* ============================================
-   MODAL DE CONFIRMACIÓN
-   ============================================ */
+/* ========== MODAL ========== */
 .modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
@@ -282,25 +431,23 @@ body {
 }
 
 .modal-box {
-    background: white;
-    border-radius: 20px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 16px;
     padding: 24px;
     width: 360px;
     max-width: 90%;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.02);
+    color: #e0e0e0;
 }
 
 .modal-box h3 {
-    margin: 0 0 12px 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #0f172a;
+    margin-bottom: 12px;
+    color: #ffffff;
 }
 
 .modal-box p {
-    margin: 0 0 24px 0;
-    color: #475569;
-    font-size: 0.9375rem;
+    margin-bottom: 24px;
+    color: #a0a0a0;
 }
 
 .modal-actions {
@@ -311,53 +458,30 @@ body {
 
 .btn-cancelar {
     padding: 8px 20px;
-    background: #f1f5f9;
-    color: #334155;
-    border: 1px solid #e2e8f0;
+    background: #2a2a2a;
+    color: #d0d0d0;
+    border: 1px solid #3a3a3a;
     border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-cancelar:hover {
-    background: #e2e8f0;
 }
 
 .btn-confirmar {
     padding: 8px 20px;
-    background: #10b981;
+    background: #8b0000;
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s;
 }
 
-.btn-confirmar:hover {
-    background: #059669;
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar {
+    width: 6px;
 }
-
-/* Responsive */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
-    }
-    .card-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .table-wrapper {
-        padding: 0 16px;
-    }
-    .data-table th, .data-table td {
-        padding: 10px 6px;
-    }
-    .badge-new {
-        top: 12px;
-        right: 12px;
-    }
+::-webkit-scrollbar-track {
+    background: #121212;
+}
+::-webkit-scrollbar-thumb {
+    background: #3a3a3a;
+    border-radius: 4px;
 }

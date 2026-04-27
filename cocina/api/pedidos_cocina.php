@@ -11,18 +11,28 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Obtener pedidos en estado 'en_preparacion'
 $sql = "
-    SELECT p.id_pedido, p.fecha_creacion, m.nombre_mesa
+    SELECT p.id_pedido, p.fecha_creacion, p.id_mesa, m.nombre_mesa
     FROM pedidos p
     INNER JOIN mesas m ON p.id_mesa = m.id_mesa
     WHERE p.estado = 'en_preparacion'
-    ORDER BY p.fecha_creacion ASC
+    ORDER BY m.id_mesa, p.fecha_creacion ASC
 ";
 $result = $conexion->query($sql);
-$pedidos = [];
+
+$mesas = [];
 
 while ($row = $result->fetch_assoc()) {
+    $id_mesa = (int)$row['id_mesa'];
     $id_pedido = (int)$row['id_pedido'];
-    
+
+    if (!isset($mesas[$id_mesa])) {
+        $mesas[$id_mesa] = [
+            'id_mesa' => $id_mesa,
+            'nombre_mesa' => $row['nombre_mesa'],
+            'pedidos' => []
+        ];
+    }
+
     // Obtener detalles del pedido
     $sql_detalle = "
         SELECT
@@ -42,8 +52,8 @@ while ($row = $result->fetch_assoc()) {
     $stmt->bind_param("i", $id_pedido);
     $stmt->execute();
     $detalle = $stmt->get_result();
-    
-    // Agrupar items iguales (mismo cliente, platillo y comentario)
+
+    // Agrupar items iguales
     $itemsAgrupados = [];
     while ($item = $detalle->fetch_assoc()) {
         $key = $item['cliente'] . '|' . $item['platillo'] . '|' . ($item['comentario'] ?? '');
@@ -59,14 +69,15 @@ while ($row = $result->fetch_assoc()) {
         $itemsAgrupados[$key]['cantidad'] += (int)$item['cantidad'];
     }
     $stmt->close();
-    
-    $pedidos[] = [
+
+    $mesas[$id_mesa]['pedidos'][] = [
         'id_pedido' => $id_pedido,
-        'nombre_mesa' => $row['nombre_mesa'],
         'fecha_creacion' => $row['fecha_creacion'],
         'items' => array_values($itemsAgrupados)
     ];
 }
 
-echo json_encode($pedidos);
-?>
+echo json_encode([
+    'ok' => true,
+    'mesas' => array_values($mesas)
+]);

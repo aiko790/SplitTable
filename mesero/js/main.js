@@ -115,15 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initSeleccionCliente();
-
-    const style = document.createElement('style');
-    style.textContent = `
-        .cliente-item.cliente-activo {
-            background: #e0f0ff;
-            border-left: 3px solid #2b90ff;
-        }
-    `;
-    document.head.appendChild(style);
 });
 
 // ==================== RELOJ EN TIEMPO REAL ====================

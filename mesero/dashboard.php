@@ -101,15 +101,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
   <header class="topbar">
     <div class="brand">
-      <div class="logo">🍽️</div>
-      <div class="title">
-        <div class="restaurant-name">Restaurante [Name]</div>
-        <div class="subtitle">Panel Mesero</div>
-      </div>
+      <img src="../img_genericos/descarga.png" alt="Logo" class="logo-img">
+      <span class="restaurant-name">MONOCROMO</span>
     </div>
 
     <div class="topcenter">
-      <div class="welcome">Bienvenido, <strong><?= htmlspecialchars($nombre_mesero) ?></strong></div>
       <div class="clock" id="clock"><?= $server_time ?></div>
     </div>
 
@@ -280,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
 
-      <div id="mensajeSeleccionMesa" style="<?= $selected_mesa ? 'display: none;' : 'display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; color: #6c757d; flex-direction: column;' ?>">
+      <div id="mensajeSeleccionMesa" style="<?= $selected_mesa ? 'display: none;' : 'display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; color: #a0a0a0; flex-direction: column;' ?>">
         <div>
           <img src="iconos/plato.png" alt="Seleccionar mesa" style="width: 64px; margin-bottom: 12px;">
           <div style="font-size: 18px; font-weight: 500;">Selecciona una mesa para comenzar</div>
@@ -332,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
 
-      <div id="mensajeSeleccionDetalle" style="<?= $selected_mesa ? 'display: none;' : 'display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; color: #6c757d; flex-direction: column;' ?>">
+      <div id="mensajeSeleccionDetalle" style="<?= $selected_mesa ? 'display: none;' : 'display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; color: #a0a0a0; flex-direction: column;' ?>">
         <div>
           <img src="iconos/lista.png" alt="Sin pedidos" style="width: 48px; margin-bottom: 12px;">
           <div style="font-size: 14px;">Aquí se mostrarán los pedidos de la mesa seleccionada</div>
@@ -368,16 +364,16 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal-box" role="dialog" aria-modal="true">
       <h3 id="modalTitulo">Agregar platillo</h3>
       <div class="modal-info" style="margin-top:8px;">
-        <div id="modalCliente" style="font-size:14px;color:#333;">Cliente: <strong id="modalClienteName">—</strong></div>
-        <div id="modalPlatilloNombre" style="font-weight:700;margin-top:8px;">Nombre platillo</div>
-        <div id="modalPrecio" style="color:#2c7be5;margin-top:6px;">$0.00</div>
+        <div id="modalCliente" style="font-size:14px;color:#e0e0e0;">Cliente: <strong id="modalClienteName">—</strong></div>
+        <div id="modalPlatilloNombre" style="font-weight:700;margin-top:8px;color:#ffffff;">Nombre platillo</div>
+        <div id="modalPrecio" style="color:#cd7f32;margin-top:6px;">$0.00</div>
       </div>
       <div class="modal-cantidad" style="display:flex;align-items:center;gap:10px;margin-top:12px;">
         <button id="qtyMinus" class="btn small">-</button>
-        <div id="modalCantidad" style="min-width:36px;text-align:center;font-weight:700;">1</div>
+        <div id="modalCantidad" style="min-width:36px;text-align:center;font-weight:700;color:#ffffff;">1</div>
         <button id="qtyPlus" class="btn small">+</button>
       </div>
-      <textarea id="modalComentario" rows="3" placeholder="Comentario para cocina..." style="margin-top:10px;padding:8px;border:1px solid #dcdfe6;border-radius:6px;width:100%;"></textarea>
+      <textarea id="modalComentario" rows="3" placeholder="Comentario para cocina..." style="margin-top:10px;padding:8px;border:1px solid #333;border-radius:6px;width:100%;background:#0f0f0f;color:#ffffff;"></textarea>
       <div class="modal-actions" style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">
         <button id="btnCancelarModal" class="btn ghost">Cancelar</button>
         <button id="btnEliminarPlatillo" class="btn danger hidden">Eliminar</button>
@@ -402,11 +398,11 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <!-- MODAL CERRAR CUENTA MODIFICADO -->
+  <!-- MODAL CERRAR CUENTA MEJORADO -->
   <div id="modalCerrarCuenta" class="modal hidden" aria-hidden="true">
     <div class="modal-box modal-cerrar" role="dialog" aria-modal="true" aria-labelledby="cerrarCuentaTitle">
       <h3 class="titulo-cerrar" id="cerrarCuentaTitle">Cerrar cuenta</h3>
-      <div class="cerrar-form" style="margin-top:12px;">
+      <div class="cerrar-form">
         <input type="hidden" name="id_mesa" id="cerrar_id_mesa" value="<?= $selected_mesa ?: '' ?>" />
         
         <div class="tipo-cuenta" role="radiogroup" aria-label="Tipo de pago">
@@ -438,9 +434,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         <div class="divider"></div>
         
-        <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
+        <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end;">
           <button type="button" class="btn ghost" id="btnCancelarCerrar">Cancelar</button>
-          <button type="button" class="btn-cerrar-mesa" id="btnConfirmarCerrar">Cerrar mesa</button>
+          <button type="button" id="btnConfirmarCerrar">Cerrar mesa</button>
         </div>
       </div>
     </div>
@@ -489,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </aside>
         <section class="modal-platillos">
           <div class="modal-buscador">
-            <input type="text" id="modalSearchPlatillo" placeholder="Buscar platillo..." style="width:100%;padding:8px;border-radius:6px;border:1px solid #d8e0ea;">
+            <input type="text" id="modalSearchPlatillo" placeholder="Buscar platillo...">
           </div>
           <div id="modalPlatillosGrid" class="modal-dishes-grid"><div class="hint">Selecciona una categoría</div></div>
         </section>

@@ -1,7 +1,7 @@
-// ==================== PANEL DE COCINA ====================
+// ==================== PANEL DE COCINA (MEJORADO) ====================
 
-let ultimoIdPedido = 0;
 let pedidoPendienteMarcar = null;
+let mesaPendienteMarcar = null;
 let pedidosVistos = new Set();
 
 // Elementos del modal
@@ -15,6 +15,7 @@ const btnConfirmarModal = document.getElementById('btnConfirmarModal');
 btnCancelarModal.addEventListener('click', () => {
     modal.classList.add('hidden');
     pedidoPendienteMarcar = null;
+    mesaPendienteMarcar = null;
 });
 
 btnConfirmarModal.addEventListener('click', () => {
@@ -22,6 +23,10 @@ btnConfirmarModal.addEventListener('click', () => {
     if (pedidoPendienteMarcar !== null) {
         marcarListoConfirmado(pedidoPendienteMarcar);
         pedidoPendienteMarcar = null;
+    }
+    if (mesaPendienteMarcar !== null) {
+        marcarMesaListoConfirmado(mesaPendienteMarcar);
+        mesaPendienteMarcar = null;
     }
 });
 
@@ -40,17 +45,16 @@ function formatearFecha(fecha) {
     return date.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-// Calcular tiempo transcurrido
+// Calcular tiempo transcurrido (devuelve texto y clase de color)
 function tiempoTranscurrido(fecha) {
     const ahora = new Date();
     const entonces = new Date(fecha);
     const diffMin = Math.floor((ahora - entonces) / 60000);
     
-    if (diffMin < 1) return 'Ahora mismo';
-    if (diffMin < 60) return `Hace ${diffMin} min`;
-    const horas = Math.floor(diffMin / 60);
-    const mins = diffMin % 60;
-    return `Hace ${horas}h ${mins}m`;
+    if (diffMin < 1) return { texto: 'Ahora', clase: 'verde' };
+    if (diffMin < 5) return { texto: `${diffMin} min`, clase: 'verde' };
+    if (diffMin < 10) return { texto: `${diffMin} min`, clase: 'naranja' };
+    return { texto: `${diffMin} min`, clase: 'rojo' };
 }
 
 // Escapar HTML
@@ -69,59 +73,79 @@ async function cargarPedidos() {
     try {
         const response = await fetch('api/pedidos_cocina.php');
         const data = await response.json();
-        renderPedidos(data);
+        
+        if (!data.ok) {
+            document.getElementById('pedidosArea').innerHTML = `
+                <div class="empty-state">
+                    <p>Error al cargar los pedidos</p>
+                    <small>Intente recargar la página</small>
+                </div>`;
+            return;
+        }
+        
+        renderPedidos(data.mesas);
+        actualizarSidebar(data.mesas);
     } catch (error) {
         console.error('Error cargando pedidos:', error);
-        document.getElementById('orders-container').innerHTML = `
+        document.getElementById('pedidosArea').innerHTML = `
             <div class="empty-state">
                 <p>Error al cargar los pedidos</p>
                 <small>Intente recargar la página</small>
-            </div>
-        `;
+            </div>`;
     }
 }
 
-// Renderizar lista de pedidos
-function renderPedidos(pedidos) {
-    const container = document.getElementById('orders-container');
+// Renderizar lista de pedidos agrupados por mesa
+function renderPedidos(mesas) {
+    const container = document.getElementById('pedidosArea');
     
-    if (!pedidos.length) {
-        ultimoIdPedido = 0;
+    if (!mesas || mesas.length === 0) {
         pedidosVistos.clear();
         container.innerHTML = `
             <div class="empty-state">
                 <p>🍽️ No hay pedidos en preparación</p>
                 <small>Los pedidos aparecerán aquí cuando los meseros los envíen a cocina</small>
-            </div>
-        `;
+            </div>`;
         return;
     }
 
-    const idsActuales = new Set(pedidos.map(p => p.id_pedido));
+    // Detectar nuevos pedidos
+    const idsActuales = new Set();
+    mesas.forEach(m => m.pedidos.forEach(p => idsActuales.add(p.id_pedido)));
     const nuevosIds = [...idsActuales].filter(id => !pedidosVistos.has(id));
-    
     nuevosIds.forEach(id => pedidosVistos.add(id));
     for (let id of pedidosVistos) {
-        if (!idsActuales.has(id)) {
-            pedidosVistos.delete(id);
-        }
+        if (!idsActuales.has(id)) pedidosVistos.delete(id);
     }
 
     let html = '';
-    for (const pedido of pedidos) {
-        const esNuevo = nuevosIds.includes(pedido.id_pedido);
-        
+    mesas.forEach(mesa => {
+        // Determinar el color más urgente entre todos los pedidos de la mesa
+        const clasesPedidos = mesa.pedidos.map(p => tiempoTranscurrido(p.fecha_creacion).clase);
+        const claseUrgente = clasesPedidos.includes('rojo') ? 'rojo' :
+                             clasesPedidos.includes('naranja') ? 'naranja' : 'verde';
+
         html += `
-            <div class="order-card" data-id-pedido="${pedido.id_pedido}">
-                ${esNuevo ? '<span class="badge-new">🆕 Nuevo</span>' : ''}
-                <div class="card-header">
+            <div class="mesa-card borde-izq-${claseUrgente}" id="mesa-${mesa.id_mesa}">
+                ${nuevosIds.some(id => mesa.pedidos.some(p => p.id_pedido === id)) ? '<span class="badge-new">🆕 Nuevo</span>' : ''}
+                <div class="mesa-card-header">
                     <div>
-                        <h3>Mesa: ${escapeHtml(pedido.nombre_mesa)}</h3>
-                        <p>Pedido #${pedido.id_pedido} · ${tiempoTranscurrido(pedido.fecha_creacion)}</p>
+                        <h3>${escapeHtml(mesa.nombre_mesa)}</h3>
+                        <p>${mesa.pedidos.length} pedido(s) · ${tiempoTranscurrido(new Date(Math.min(...mesa.pedidos.map(p => new Date(p.fecha_creacion).getTime())))).texto}</p>
                     </div>
                     <span class="badge-status">En preparación</span>
                 </div>
-                <div class="table-wrapper">
+        `;
+
+        // Subtarjetas por pedido
+        mesa.pedidos.forEach(pedido => {
+            const { texto, clase } = tiempoTranscurrido(pedido.fecha_creacion);
+            html += `
+                <div class="pedido-subcard borde-${clase}">
+                    <div class="pedido-subcard-header">
+                        <span>Pedido #${pedido.id_pedido}</span>
+                        <span>${formatearFecha(pedido.fecha_creacion)}</span>
+                    </div>
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -133,38 +157,89 @@ function renderPedidos(pedidos) {
                             </tr>
                         </thead>
                         <tbody>
-        `;
-        
-        for (const item of pedido.items) {
-            html += `
-                <tr>
-                    <td>${escapeHtml(item.cliente)}</td>
-                    <td>${escapeHtml(item.platillo)}</td>
-                    <td>${escapeHtml(item.categoria)}</td>
-                    <td>${item.cantidad}</td>
-                    <td class="comentario">${item.comentario ? escapeHtml(item.comentario) : '—'}</td>
-                </tr>
             `;
-        }
-        
+            pedido.items.forEach(item => {
+                html += `
+                    <tr>
+                        <td>${escapeHtml(item.cliente)}</td>
+                        <td>${escapeHtml(item.platillo)}</td>
+                        <td>${escapeHtml(item.categoria)}</td>
+                        <td><span class="cant-badge">${item.cantidad}</span></td>
+                        <td class="comentario">${item.comentario ? escapeHtml(item.comentario) : '—'}</td>
+                    </tr>`;
+            });
+            html += `</tbody></table>
+                    <div class="pedido-acciones">
+                        <button class="btn-listo-individual" onclick="solicitarMarcarListo(${pedido.id_pedido}, '${escapeHtml(mesa.nombre_mesa)}')">✓ Listo</button>
+                    </div>
+                </div>`;
+        });
+
+        // Botón marcar todo listo
         html += `
-                        </tbody>
-                    </table>
-                </div>
                 <div class="card-actions">
-                    <button class="btn-listo" onclick="solicitarMarcarListo(${pedido.id_pedido}, '${escapeHtml(pedido.nombre_mesa)}')">✓ Marcar como listo</button>
+                    <button class="btn-listo-mesa" onclick="solicitarMarcarMesaListo(${mesa.id_mesa}, '${escapeHtml(mesa.nombre_mesa)}')">✓ Marcar todo listo</button>
                 </div>
-            </div>
-        `;
-    }
+            </div>`;
+    });
+
     container.innerHTML = html;
 }
 
-// Solicitar confirmación antes de marcar
+// Sidebar
+function actualizarSidebar(mesas) {
+    const items = document.querySelectorAll('.item-mesa');
+    const idsConPedidos = new Set(mesas.map(m => m.id_mesa));
+
+    items.forEach(item => {
+        const idMesa = parseInt(item.dataset.mesa);
+        if (idsConPedidos.has(idMesa)) {
+            item.classList.add('con-pedidos');
+            item.classList.remove('sin-pedidos');
+            item.onclick = () => {
+                const target = document.getElementById(`mesa-${idMesa}`);
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+        } else {
+            item.classList.remove('con-pedidos');
+            item.classList.add('sin-pedidos');
+            item.onclick = null;
+        }
+    });
+}
+
+// Marcar mesa completa
+function solicitarMarcarMesaListo(idMesa, nombreMesa) {
+    mesaPendienteMarcar = idMesa;
+    modalTitulo.textContent = 'Marcar todo listo';
+    modalMensaje.textContent = `¿Marcar todos los pedidos de ${nombreMesa} como listos?`;
+    modal.classList.remove('hidden');
+}
+
+async function marcarMesaListoConfirmado(idMesa) {
+    try {
+        const response = await fetch('api/pedidos_listo_mesa.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_mesa: idMesa })
+        });
+        const data = await response.json();
+        if (data.ok) {
+            cargarPedidos();
+        } else {
+            alert(data.message || 'Error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión');
+    }
+}
+
+// Marcar pedido individual
 function solicitarMarcarListo(idPedido, nombreMesa) {
     mostrarConfirmacion(
         'Marcar pedido como listo',
-        `¿Confirmas que el pedido de la ${nombreMesa} está listo para entregar?`,
+        `¿Confirmas que el pedido de ${nombreMesa} está listo para entregar?`,
         idPedido
     );
 }

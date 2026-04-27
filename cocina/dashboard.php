@@ -2,6 +2,15 @@
 require_once __DIR__ . "/../config/cocina_session.php";
 
 $nombre_cocinero = $_SESSION['nombre_cocinero'] ?? 'Cocinero';
+$server_time = date('H:i:s');
+
+// Obtener todas las mesas para la barra lateral
+$sqlMesas = "SELECT id_mesa, nombre_mesa, estado FROM mesas ORDER BY id_mesa";
+$resMesas = $conexion->query($sqlMesas);
+$todasMesas = [];
+while ($m = $resMesas->fetch_assoc()) {
+    $todasMesas[] = $m;
+}
 
 $cssVer = file_exists(__DIR__ . '/dashboard.css') ? filemtime(__DIR__ . '/dashboard.css') : time();
 $jsVer  = file_exists(__DIR__ . '/dashboard.js')   ? filemtime(__DIR__ . '/dashboard.js')   : time();
@@ -16,31 +25,42 @@ $jsVer  = file_exists(__DIR__ . '/dashboard.js')   ? filemtime(__DIR__ . '/dashb
 </head>
 <body>
 
-<header class="header">
-    <div class="header-content">
-        <div>
-            <div class="header-title">🍳 Panel de Cocina</div>
-            <div class="header-subtitle">Pedidos en preparación</div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <span style="color: #e9ecef; font-size: 0.875rem;">👨‍🍳 <?= htmlspecialchars($nombre_cocinero) ?></span>
-            <a href="../auth/logout.php" class="btn-back">Salir</a>
-        </div>
+<header class="topbar">
+    <div class="brand">
+        <img src="../img_genericos/descarga.png" alt="Logo" class="logo-img">
+        <span class="restaurant-name">MONOCROMO</span>
     </div>
+    <div class="topcenter">
+        <div class="clock" id="clock"><?= $server_time ?></div>
+    </div>
+    <nav class="top-actions">
+        <a class="btn small danger" href="../auth/logout.php">Salir</a>
+    </nav>
 </header>
 
-<main class="container">
-    <div id="orders-container" class="orders-grid">
+<main class="cocina-layout">
+    <!-- Barra lateral de mesas -->
+    <aside class="sidebar-mesas">
+        <h4>Todas las mesas</h4>
+        <ul class="lista-mesas" id="listaMesas">
+            <?php foreach ($todasMesas as $mesa): ?>
+            <li class="item-mesa" data-mesa="<?= $mesa['id_mesa'] ?>">
+                <?= htmlspecialchars($mesa['nombre_mesa']) ?>
+                <span class="estado-mesa <?= $mesa['estado'] ? 'ocupada' : 'libre' ?>"></span>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+    </aside>
+
+    <!-- Contenido principal -->
+    <section class="pedidos-area" id="pedidosArea">
         <div class="empty-state">
             <p>Cargando pedidos...</p>
         </div>
-    </div>
-    <div class="auto-refresh">
-        Actualización automática cada 5 segundos
-    </div>
+    </section>
 </main>
 
-<!-- Modal de confirmación personalizado -->
+<!-- Modal de confirmación genérico -->
 <div id="modalConfirmacion" class="modal hidden">
     <div class="modal-box">
         <h3 id="modalTitulo">Confirmar acción</h3>
@@ -51,6 +71,21 @@ $jsVer  = file_exists(__DIR__ . '/dashboard.js')   ? filemtime(__DIR__ . '/dashb
         </div>
     </div>
 </div>
+
+<script>
+// Reloj en tiempo real
+(function() {
+    function actualizarReloj() {
+        const ahora = new Date();
+        const h = String(ahora.getHours()).padStart(2, '0');
+        const m = String(ahora.getMinutes()).padStart(2, '0');
+        const s = String(ahora.getSeconds()).padStart(2, '0');
+        document.getElementById('clock').textContent = h + ':' + m + ':' + s;
+    }
+    actualizarReloj();
+    setInterval(actualizarReloj, 1000);
+})();
+</script>
 
 <script src="dashboard.js?v=<?= $jsVer ?>"></script>
 </body>

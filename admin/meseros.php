@@ -64,35 +64,6 @@ function validarMesero($datos, $es_actualizacion = false) {
     return ['errores' => $errores, 'datos' => ['nombre' => $nombre, 'correo' => $correo, 'telefono' => $telefono, 'fecha_nacimiento' => $fecha_nacimiento]];
 }
 
-// Endpoint AJAX para activar/desactivar
-if (isset($_POST['ajax_action']) && $_POST['ajax_action'] === 'toggle_estado') {
-    header('Content-Type: application/json');
-    
-    $id = (int)$_POST['id'];
-    $estado = (int)$_POST['estado'];
-    $respuesta = ['success' => false, 'message' => '', 'nuevo_estado' => null];
-    
-    if ($estado === 0 || $estado === 1) {
-        $sql = "UPDATE meseros SET estado = ? WHERE id_mesero = ?";
-        $stmt = $conexion->prepare($sql);
-        $stmt->bind_param("ii", $estado, $id);
-        
-        if ($stmt->execute()) {
-            $respuesta['success'] = true;
-            $respuesta['message'] = $estado ? "Mesero activado correctamente" : "Mesero desactivado correctamente";
-            $respuesta['nuevo_estado'] = $estado;
-        } else {
-            $respuesta['message'] = "Error al actualizar el estado";
-        }
-        $stmt->close();
-    } else {
-        $respuesta['message'] = "Estado no válido";
-    }
-    
-    echo json_encode($respuesta);
-    exit;
-}
-
 // Endpoint AJAX para crear mesero
 if (isset($_POST['ajax_action']) && $_POST['ajax_action'] === 'crear_mesero') {
     header('Content-Type: application/json');
@@ -141,9 +112,75 @@ if (isset($_POST['ajax_action']) && $_POST['ajax_action'] === 'crear_mesero') {
     }
 }
 
-// Obtener lista actualizada
+// Endpoint AJAX para actualizar mesero
+if (isset($_POST['ajax_action']) && $_POST['ajax_action'] === 'update_mesero') {
+    header('Content-Type: application/json');
+    
+    $id = (int)$_POST['id'];
+    $nombre = trim($_POST['nombre'] ?? '');
+    $correo = trim($_POST['correo'] ?? '');
+    $telefono = trim($_POST['telefono'] ?? '');
+    $fecha_nacimiento = $_POST['fecha_nacimiento'] ?? '';
+    // ✅ CORREGIDO: Leer el valor real del campo estado (1 si es '1', 0 en cualquier otro caso)
+    $estado = (isset($_POST['estado']) && $_POST['estado'] == '1') ? 1 : 0;
+    $password = $_POST['password'] ?? '';
+    
+    $errores = [];
+    
+    if (empty($nombre) || strlen($nombre) < 3) {
+        $errores['nombre'] = "Nombre inválido (mínimo 3 caracteres)";
+    }
+    if (empty($correo) || !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+        $errores['correo'] = "Correo electrónico inválido";
+    }
+    
+    if (empty($errores['correo'])) {
+        $check = $conexion->prepare("SELECT id_mesero FROM meseros WHERE correo = ? AND id_mesero != ?");
+        $check->bind_param("si", $correo, $id);
+        $check->execute();
+        $check->store_result();
+        if ($check->num_rows > 0) {
+            $errores['correo'] = "Este correo ya está registrado por otro mesero";
+        }
+        $check->close();
+    }
+    
+    if (!empty($password)) {
+        if (strlen($password) < 8 || !preg_match("/[A-Z]/", $password) || !preg_match("/[a-z]/", $password) || !preg_match("/\d/", $password)) {
+            $errores['password'] = "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número";
+        }
+    }
+    
+    if (!empty($errores)) {
+        echo json_encode(['success' => false, 'message' => 'Errores de validación', 'errores' => $errores]);
+        exit;
+    }
+    
+    if (!empty($password)) {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $sql = "UPDATE meseros SET nombre=?, correo=?, telefono=?, fecha_nacimiento=?, password=?, estado=? WHERE id_mesero=?";
+        $stmt = $conexion->prepare($sql);
+        $stmt->bind_param("sssssii", $nombre, $correo, $telefono, $fecha_nacimiento, $hash, $estado, $id);
+    } else {
+        $sql = "UPDATE meseros SET nombre=?, correo=?, telefono=?, fecha_nacimiento=?, estado=? WHERE id_mesero=?";
+        $stmt = $conexion->prepare($sql);
+        $stmt->bind_param("ssssii", $nombre, $correo, $telefono, $fecha_nacimiento, $estado, $id);
+    }
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Mesero actualizado correctamente']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error al actualizar: ' . $conexion->error]);
+    }
+    $stmt->close();
+    exit;
+}
+
+// Obtener lista actualizada (para AJAX)
 if (isset($_GET['ajax_list']) && $_GET['ajax_list'] == '1') {
     header('Content-Type: application/json');
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
     $lista = $conexion->query("SELECT * FROM meseros ORDER BY nombre");
     $meseros = [];
     while ($m = $lista->fetch_assoc()) {
@@ -162,6 +199,7 @@ $lista = $conexion->query("SELECT * FROM meseros ORDER BY nombre");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Meseros</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/meseros.css">
 </head>
 <body>
@@ -216,7 +254,7 @@ $lista = $conexion->query("SELECT * FROM meseros ORDER BY nombre");
                                 <div class="error-message" id="error-correo"></div>
                                 <div class="form-hint">Usuario para iniciar sesión</div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Teléfono</label>
                                 <input type="tel" id="telefono" name="telefono" placeholder="5512345678" maxlength="10">
@@ -320,10 +358,14 @@ $lista = $conexion->query("SELECT * FROM meseros ORDER BY nombre");
                                             </span>
                                         </td>
                                         <td>
-                                            <button class="action-btn toggle-status" 
+                                            <button class="action-btn edit-btn" 
                                                     data-id="<?= $m['id_mesero'] ?>"
+                                                    data-nombre="<?= htmlspecialchars($m['nombre']) ?>"
+                                                    data-correo="<?= htmlspecialchars($m['correo']) ?>"
+                                                    data-telefono="<?= htmlspecialchars($m['telefono'] ?? '') ?>"
+                                                    data-fecha="<?= $m['fecha_nacimiento'] ?? '' ?>"
                                                     data-estado="<?= $m['estado'] ?>">
-                                                <?= $m['estado'] ? 'Desactivar' : 'Activar' ?>
+                                                <i class="fas fa-edit"></i> Editar
                                             </button>
                                         </td>
                                     </tr>
@@ -337,7 +379,7 @@ $lista = $conexion->query("SELECT * FROM meseros ORDER BY nombre");
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal de notificaciones -->
 <div id="notificationModal" class="modal">
     <div class="modal-content">
         <div class="modal-icon" id="modalIcon"></div>
@@ -346,11 +388,71 @@ $lista = $conexion->query("SELECT * FROM meseros ORDER BY nombre");
     </div>
 </div>
 
+<!-- Modal de Edición -->
+<div id="editModal" class="modal">
+    <div class="modal-content edit-modal-content">
+        <div class="modal-header">
+            <h3>Editar Mesero</h3>
+            <button class="modal-close" onclick="closeEditModal()">&times;</button>
+        </div>
+        <form id="editForm" novalidate>
+            <input type="hidden" id="edit_id" name="id">
+            
+            <div class="form-group">
+                <label>Nombre completo <span class="required">*</span></label>
+                <input type="text" id="edit_nombre" name="nombre" maxlength="100" required>
+                <div class="error-message" id="edit-error-nombre"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>Correo electrónico <span class="required">*</span></label>
+                <input type="email" id="edit_correo" name="correo" maxlength="100" required>
+                <div class="error-message" id="edit-error-correo"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="tel" id="edit_telefono" name="telefono" maxlength="10">
+                <div class="error-message" id="edit-error-telefono"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>Fecha de nacimiento</label>
+                <input type="date" id="edit_fecha" name="fecha_nacimiento" max="<?= date('Y-m-d', strtotime('-18 years')) ?>">
+                <div class="error-message" id="edit-error-fecha"></div>
+            </div>
+            
+            <!-- Checkbox con name="estado" y value="1" -->
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="edit_estado" name="estado" value="1">
+                    Usuario activo
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label>Nueva contraseña (opcional)</label>
+                <div class="password-field">
+                    <input type="password" id="edit_password" name="password" placeholder="Dejar en blanco para no cambiar" minlength="8">
+                    <button type="button" class="password-toggle" onclick="toggleEditPassword()">Mostrar</button>
+                </div>
+                <div class="error-message" id="edit-error-password"></div>
+                <div class="form-hint">Mínimo 8 caracteres, mayúscula, minúscula y número</div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 // Variables
 let submitLock = false;
 
-// Toggle del sidebar (desplegable horizontal)
+// Toggle del sidebar
 const toggleBtn = document.getElementById('toggleBtn');
 const sidebar = document.getElementById('formSidebar');
 let isExpanded = true;
@@ -369,7 +471,7 @@ if (toggleBtn && sidebar) {
     });
 }
 
-// Mostrar modal
+// Mostrar modal de notificación
 function showModal(message, isSuccess = true) {
     const modal = document.getElementById('notificationModal');
     const modalIcon = document.getElementById('modalIcon');
@@ -389,10 +491,182 @@ function closeModal() {
     modal.classList.remove('show');
 }
 
-// Actualizar tabla
+// Limpieza automática del teléfono mientras se escribe
+document.addEventListener('DOMContentLoaded', function() {
+    const editTelefono = document.getElementById('edit_telefono');
+    if (editTelefono) {
+        editTelefono.addEventListener('input', function() {
+            let valor = this.value.replace(/\D/g, '');
+            if (valor.length > 10) valor = valor.slice(0, 10);
+            this.value = valor;
+        });
+    }
+});
+
+function openEditModal(meseroData) {
+    document.getElementById('edit_id').value = meseroData.id;
+    document.getElementById('edit_nombre').value = meseroData.nombre;
+    document.getElementById('edit_correo').value = meseroData.correo;
+    document.getElementById('edit_telefono').value = meseroData.telefono || '';
+    document.getElementById('edit_fecha').value = meseroData.fecha || '';
+    document.getElementById('edit_estado').checked = (meseroData.estado == 1);
+    document.getElementById('edit_password').value = '';
+    
+    // Limpiar errores previos
+    document.querySelectorAll('#editForm .error-message').forEach(el => el.textContent = '');
+    document.querySelectorAll('#editForm input').forEach(el => el.classList.remove('invalid', 'valid'));
+    
+    document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('show');
+}
+
+function toggleEditPassword() {
+    const pwdField = document.getElementById('edit_password');
+    const toggleBtn = pwdField.nextElementSibling;
+    if (pwdField.type === 'password') {
+        pwdField.type = 'text';
+        toggleBtn.textContent = 'Ocultar';
+    } else {
+        pwdField.type = 'password';
+        toggleBtn.textContent = 'Mostrar';
+    }
+}
+
+// Validación del formulario de edición
+function validarEditForm() {
+    let isValid = true;
+    const nombre = document.getElementById('edit_nombre').value.trim();
+    const correo = document.getElementById('edit_correo').value.trim();
+    const telefono = document.getElementById('edit_telefono').value.trim();
+    const fecha = document.getElementById('edit_fecha').value;
+    const password = document.getElementById('edit_password').value;
+    
+    // Nombre
+    if (nombre.length < 3 || !/^[a-zA-ZáéíóúñÑáéíóúÁÉÍÓÚ\s]+$/.test(nombre)) {
+        document.getElementById('edit-error-nombre').textContent = 'Mínimo 3 caracteres, solo letras';
+        isValid = false;
+    } else {
+        document.getElementById('edit-error-nombre').textContent = '';
+    }
+    
+    // Correo
+    if (!/^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(correo)) {
+        document.getElementById('edit-error-correo').textContent = 'Correo inválido';
+        isValid = false;
+    } else {
+        document.getElementById('edit-error-correo').textContent = '';
+    }
+    
+    // Teléfono
+    if (telefono.length > 0 && telefono.length !== 10) {
+        document.getElementById('edit-error-telefono').textContent = 'Debe tener 10 dígitos';
+        isValid = false;
+    } else {
+        document.getElementById('edit-error-telefono').textContent = '';
+    }
+    
+    // Fecha
+    if (fecha) {
+        const birthDate = new Date(fecha + 'T00:00:00');
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+        if (age < 18) {
+            document.getElementById('edit-error-fecha').textContent = 'Debe ser mayor de 18 años';
+            isValid = false;
+        } else {
+            document.getElementById('edit-error-fecha').textContent = '';
+        }
+    } else {
+        document.getElementById('edit-error-fecha').textContent = '';
+    }
+    
+    // Contraseña
+    if (password.length > 0) {
+        if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+            document.getElementById('edit-error-password').textContent = 'Al menos 8 caracteres, una mayúscula, una minúscula y un número';
+            isValid = false;
+        } else {
+            document.getElementById('edit-error-password').textContent = '';
+        }
+    }
+    
+    return isValid;
+}
+
+// Envío del formulario de edición
+document.getElementById('editForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!validarEditForm()) return;
+    
+    const formData = new FormData(this);
+    formData.append('ajax_action', 'update_mesero');
+    
+    // Forzar el valor correcto del estado
+    formData.delete('estado');
+    formData.append('estado', document.getElementById('edit_estado').checked ? '1' : '0');
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Guardando...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('meseros.php', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            showModal(result.message, true);
+            closeEditModal();
+            location.reload();
+        } else {
+            showModal(result.message || 'Error al actualizar', false);
+            if (result.errores) {
+                if (result.errores.nombre) document.getElementById('edit-error-nombre').textContent = result.errores.nombre;
+                if (result.errores.correo) document.getElementById('edit-error-correo').textContent = result.errores.correo;
+                if (result.errores.password) document.getElementById('edit-error-password').textContent = result.errores.password;
+                if (result.errores.telefono) document.getElementById('edit-error-telefono').textContent = result.errores.telefono;
+                if (result.errores.fecha_nacimiento) document.getElementById('edit-error-fecha').textContent = result.errores.fecha_nacimiento;
+            }
+        }
+    } catch (error) {
+        showModal('Error de conexión', false);
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+// Delegación de eventos para botones Editar
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.edit-btn')) {
+        const btn = e.target.closest('.edit-btn');
+        const meseroData = {
+            id: btn.dataset.id,
+            nombre: btn.dataset.nombre,
+            correo: btn.dataset.correo,
+            telefono: btn.dataset.telefono,
+            fecha: btn.dataset.fecha,
+            estado: btn.dataset.estado
+        };
+        openEditModal(meseroData);
+    }
+});
+
+// Actualizar tabla sin caché y con edad corregida
 async function refreshTable() {
     try {
-        const response = await fetch('meseros.php?ajax_list=1');
+        const response = await fetch('meseros.php?ajax_list=1', {
+            cache: 'no-store'
+        });
         const meseros = await response.json();
         
         const tbody = document.getElementById('meserosList');
@@ -417,12 +691,21 @@ async function refreshTable() {
         countBadge.textContent = meseros.length;
         
         tbody.innerHTML = meseros.map(m => {
-            const edad = m.fecha_nacimiento ? 
-                `${new Date().getFullYear() - new Date(m.fecha_nacimiento).getFullYear()} años` : '—';
+            let edad = '—';
+            if (m.fecha_nacimiento) {
+                const hoy = new Date();
+                const nac = new Date(m.fecha_nacimiento + 'T00:00:00');
+                let anios = hoy.getFullYear() - nac.getFullYear();
+                const mes = hoy.getMonth() - nac.getMonth();
+                if (mes < 0 || (mes === 0 && hoy.getDate() < nac.getDate())) {
+                    anios--;
+                }
+                edad = anios + ' años';
+            }
+            
             const telefono = m.telefono || '—';
             const statusClass = m.estado ? 'status-active' : 'status-inactive';
             const statusText = m.estado ? 'Activo' : 'Inactivo';
-            const actionText = m.estado ? 'Desactivar' : 'Activar';
             
             return `
                 <tr data-id="${m.id_mesero}">
@@ -437,18 +720,19 @@ async function refreshTable() {
                     <td>${m.fecha_nacimiento ? `<span class="age-tag">${edad}</span>` : '<span class="contact-empty">—</span>'}</td>
                     <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     <td>
-                        <button class="action-btn toggle-status" data-id="${m.id_mesero}" data-estado="${m.estado}">
-                            ${actionText}
+                        <button class="action-btn edit-btn" 
+                                data-id="${m.id_mesero}"
+                                data-nombre="${escapeHtml(m.nombre)}"
+                                data-correo="${escapeHtml(m.correo)}"
+                                data-telefono="${m.telefono ? escapeHtml(m.telefono) : ''}"
+                                data-fecha="${m.fecha_nacimiento || ''}"
+                                data-estado="${m.estado}">
+                            <i class="fas fa-edit"></i> Editar
                         </button>
                     </td>
                 </tr>
             `;
         }).join('');
-        
-        document.querySelectorAll('.toggle-status').forEach(btn => {
-            btn.removeEventListener('click', handleToggleStatus);
-            btn.addEventListener('click', handleToggleStatus);
-        });
         
     } catch (error) {
         console.error('Error:', error);
@@ -465,45 +749,7 @@ function escapeHtml(str) {
     });
 }
 
-// Toggle estado
-async function handleToggleStatus(event) {
-    const button = event.currentTarget;
-    const id = button.dataset.id;
-    const estadoActual = parseInt(button.dataset.estado);
-    const nuevoEstado = estadoActual === 1 ? 0 : 1;
-    const nombreMesero = button.closest('tr').querySelector('.user-name')?.textContent || 'el mesero';
-    
-    const confirmMessage = nuevoEstado === 1 ? 
-        `¿Activar a ${nombreMesero}?` : 
-        `¿Desactivar a ${nombreMesero}?`;
-    
-    if (!confirm(confirmMessage)) return;
-    
-    try {
-        const formData = new FormData();
-        formData.append('ajax_action', 'toggle_estado');
-        formData.append('id', id);
-        formData.append('estado', nuevoEstado);
-        
-        const response = await fetch('meseros.php', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            showModal(result.message, true);
-            refreshTable();
-        } else {
-            showModal(result.message, false);
-        }
-    } catch (error) {
-        showModal('Error al procesar la solicitud', false);
-    }
-}
-
-// Validaciones
+// Validaciones del formulario de registro (se mantienen igual)
 function mostrarError(id, mensaje) {
     const errorDiv = document.getElementById('error-' + id);
     const input = document.getElementById(id);
@@ -584,7 +830,7 @@ function validarFecha() {
         limpiarError('fecha');
         return true;
     }
-    const birthDate = new Date(fecha);
+    const birthDate = new Date(fecha + 'T00:00:00');
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -640,7 +886,7 @@ function validarPassword() {
     return true;
 }
 
-// Event listeners
+// Event listeners para el formulario de registro
 document.getElementById('nombre')?.addEventListener('input', validarNombre);
 document.getElementById('correo')?.addEventListener('input', validarCorreo);
 document.getElementById('telefono')?.addEventListener('input', validarTelefono);
@@ -655,7 +901,7 @@ function togglePassword() {
     toggleBtn.textContent = type === 'password' ? 'Mostrar' : 'Ocultar';
 }
 
-// Submit form
+// Submit del formulario de registro
 const form = document.getElementById('formMesero');
 form?.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -710,11 +956,6 @@ form?.addEventListener('submit', async function(e) {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     }
-});
-
-// Inicializar eventos
-document.querySelectorAll('.toggle-status').forEach(btn => {
-    btn.addEventListener('click', handleToggleStatus);
 });
 </script>
 

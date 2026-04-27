@@ -1,6 +1,7 @@
 /* ============================================
    DASHBOARD.CSS - Layout principal, mesas,
    panel central (clientes/categorías), panel derecho
+   Tema oscuro unificado
    ============================================ */
 
 /* LAYOUT principal */
@@ -13,19 +14,21 @@
 }
 
 .panel {
-    background: white;
+    background: #121212;
     border-radius: 12px;
     padding: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     min-height: 0;
+    border: 1px solid #2a2a2a;
 }
 
 .panel-title {
     margin-bottom: 8px;
     font-size: 18px;
+    color: #ffffff;
 }
 
 /* MESAS */
@@ -42,25 +45,35 @@
 
 .mesa-card {
     --accent: #22c55e;
-    --soft: rgba(34, 197, 94, 0.03);
-    --soft-strong: rgba(34, 197, 94, 0.20);
+    --soft: rgba(34, 197, 94, 0.05);
+    --soft-strong: rgba(34, 197, 94, 0.25);
+
     width: 160px;
     height: 180px;
     border-radius: 14px;
     overflow: hidden;
-    background: linear-gradient(180deg, var(--soft) 0%, var(--soft) 100%);
-    background-color: white;
+
+    /* 🔥 Mejor fondo (más profundidad) */
+    background: linear-gradient(180deg, var(--soft) 0%, rgba(0,0,0,0.15) 100%);
+    background-color: #1a1a1a;
+
     cursor: pointer;
     text-align: center;
+
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+
     position: relative;
+
     border: 1px solid var(--soft-strong);
     outline: none;
-    color: inherit;
+
+    color: #e0e0e0;
     padding: 0;
-    transition: none;
+
+    /* ✨ Transiciones suaves (esto cambia TODO) */
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border 0.15s ease;
 }
 
 .mesa-card .barra {
@@ -104,7 +117,7 @@
 .mesa-nombre {
     font-size: 18px;
     font-weight: 700;
-    color: var(--text);
+    color: #ffffff;
     line-height: 1.2;
 }
 
@@ -122,17 +135,52 @@
     font-size: 12px;
     font-weight: 500;
     color: var(--accent);
-    background: rgba(255,255,255,0.26);
+    background: rgba(255,255,255,0.05);
     margin-top: auto;
     margin-bottom: 2px;
 }
 
-.mesa-card.libre { --accent: #1f9d48; --soft: rgba(34,197,94,0.08); --soft-strong: rgba(34,197,94,0.20); }
-.mesa-card.tu { --accent: #2e78d6; --soft: rgba(59,130,246,0.08); --soft-strong: rgba(59,130,246,0.20); }
-.mesa-card.otro { --accent: #9ca3af; --soft: rgba(156, 163, 175, 0.08); --soft-strong: rgba(156, 163, 175, 0.20); background: #f3f4f6; }
-.mesa-card.cocina { --accent: #d97706; --soft: rgba(245,158,11,0.08); --soft-strong: rgba(245,158,11,0.22); }
-.mesa-card.listo { --accent: #1f9d48; --soft: rgba(34,197,94,0.08); --soft-strong: rgba(34,197,94,0.22); }
-.mesa-card.mesa-selected { outline: 2px solid #2b90ff; box-shadow: 0 0 0 2px rgba(43,144,255,0.2); }
+/* 🟢 Libre */
+.mesa-card.libre { 
+  --accent: #22c55e; 
+  --soft: rgba(34,197,94,0.08); 
+  --soft-strong: rgba(34,197,94,0.25); 
+}
+
+/* 🔵 Ocupada por ti */
+.mesa-card.tu { 
+  --accent: #3b82f6; 
+  --soft: rgba(59,130,246,0.08); 
+  --soft-strong: rgba(59,130,246,0.25); 
+}
+
+/* ⚪ Ocupada por otro */
+.mesa-card.otro { 
+  --accent: #9ca3af; 
+  --soft: rgba(156,163,175,0.08); 
+  --soft-strong: rgba(156,163,175,0.25); 
+  background: #1f1f1f; 
+}
+
+/* 🟠 En cocina */
+.mesa-card.cocina { 
+  --accent: #f97316; 
+  --soft: rgba(249,115,22,0.08); 
+  --soft-strong: rgba(249,115,22,0.25); 
+}
+
+/* 🟡 Listo para entregar */
+.mesa-card.listo { 
+  --accent: #facc15; 
+  --soft: rgba(250,204,21,0.08); 
+  --soft-strong: rgba(250,204,21,0.25); 
+}
+
+/* 🔴 Mesa seleccionada */
+.mesa-card.mesa-selected { 
+  outline: 2px solid #8b0000; 
+  box-shadow: 0 0 0 2px rgba(139,0,0,0.4); 
+}
 
 /* PANEL CENTRAL - CLIENTES y CATEGORÍAS */
 .mesa-meta-compact {
@@ -140,9 +188,15 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: #f6f8fa;
+    background: #1a1a1a;
     border-radius: 8px;
     margin-bottom: 8px;
+    color: #e0e0e0;
+    border: 1px solid #2a2a2a;
+}
+
+.mesa-meta-compact strong {
+    color: #ffffff;
 }
 
 .panel-gestion {
@@ -159,7 +213,7 @@
 }
 
 .clientes-card {
-    background: #f9fafc;
+    background: #1a1a1a;
     padding: 8px;
     border-radius: 8px;
     display: flex;
@@ -168,10 +222,15 @@
     min-height: 0;
     margin-bottom: 8px;
     flex: 2.5;
+    border: 1px solid #2a2a2a;
+}
+
+.clientes-card h4 {
+    color: #ffffff;
 }
 
 .categorias-card {
-    background: #f9fafc;
+    background: #1a1a1a;
     padding: 8px;
     border-radius: 8px;
     display: flex;
@@ -179,6 +238,11 @@
     gap: 8px;
     min-height: 0;
     flex: 2;
+    border: 1px solid #2a2a2a;
+}
+
+.categorias-card h4 {
+    color: #ffffff;
 }
 
 .categorias-grid {
@@ -192,13 +256,13 @@
 }
 
 .btn-categoria {
-    background: #f0f4f9;
-    border: 1px solid #e1e8f0;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
     border-radius: 12px;
     padding: 0;
     font-size: 12px;
     font-weight: 500;
-    color: #1f2933;
+    color: #d0d0d0;
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: center;
@@ -213,8 +277,8 @@
 }
 
 .btn-categoria:hover {
-    background: #2b90ff;
-    border-color: #2b90ff;
+    background: #8b0000;
+    border-color: #8b0000;
     color: white;
 }
 
@@ -229,7 +293,7 @@
 
 .cliente-item {
     padding: 6px 4px;
-    border-bottom: 1px solid #f1f3f6;
+    border-bottom: 1px solid #2a2a2a;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
@@ -237,12 +301,17 @@
 }
 
 .cliente-item:hover {
-    background: #eef4fb;
+    background: #2a1515;
+}
+.cliente-item.cliente-activo {
+    background: #2a1515 !important;
+    border-left: 3px solid #8b0000;
+    padding-left: 1px;
 }
 
 .cliente-nombre {
     font-weight: 600;
-    color: #0b2840;
+    color: #e0e0e0;
 }
 
 .cliente-right {
@@ -253,7 +322,7 @@
 
 .cliente-total {
     font-weight: 700;
-    color: #2c7be5;
+    color: #8b0000;
     font-size: 12px;
     min-width: 65px;
     text-align: right;
@@ -267,16 +336,18 @@
 .add-client input {
     flex: 1;
     padding: 6px;
-    border: 1px solid #dfe6ee;
+    border: 1px solid #3a3a3a;
     border-radius: 4px;
     font-size: 12px;
+    background: #1a1a1a;
+    color: #ffffff;
 }
 
 /* PANEL DERECHO - DETALLE DEL PEDIDO */
 .panel-detalle {
-    background: white;
+    background: #121212;
     border-radius: 8px;
-    border: 1px solid #eef2f6;
+    border: 1px solid #2a2a2a;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -285,14 +356,14 @@
 
 .detalle-header {
     padding: 8px 12px 4px 12px;
-    border-bottom: 1px solid #eef2f6;
+    border-bottom: 1px solid #2a2a2a;
     flex-shrink: 0;
 }
 
 .detalle-header h4 {
     font-size: 14px;
     font-weight: 600;
-    color: #1f2933;
+    color: #ffffff;
     margin: 0;
 }
 
@@ -311,19 +382,19 @@
 .tab-text {
     font-size: 13px;
     font-weight: 500;
-    color: #8b9eb0;
+    color: #a0a0a0;
     cursor: pointer;
     padding: 4px 0;
     transition: all 0.15s;
 }
 
 .tab-text.active {
-    color: #2b90ff;
-    border-bottom: 2px solid #2b90ff;
+    color: #8b0000;
+    border-bottom: 2px solid #8b0000;
 }
 
 .separator {
-    color: #cbd5e1;
+    color: #555;
     font-size: 14px;
 }
 
@@ -346,15 +417,15 @@
     width: 6px;
 }
 .detalle-list::-webkit-scrollbar-track {
-    background: #e9ecef;
+    background: #121212;
     border-radius: 4px;
 }
 .detalle-list::-webkit-scrollbar-thumb {
-    background: #adb5bd;
+    background: #3a3a3a;
     border-radius: 4px;
 }
 .detalle-list::-webkit-scrollbar-thumb:hover {
-    background: #6c757d;
+    background: #555;
 }
 
 .detalle-actions,
@@ -362,7 +433,7 @@
 .detalle-cerrar {
     flex-shrink: 0;
     padding: 8px 12px;
-    background: white;
+    background: #121212;
 }
 
 .detalle-actions {
@@ -371,7 +442,7 @@
 }
 
 .detalle-totales {
-    border-top: 1px solid #eef2f6;
+    border-top: 1px solid #2a2a2a;
     padding-top: 10px;
     padding-bottom: 10px;
 }
@@ -383,19 +454,19 @@
 
 .cliente-group {
     margin-bottom: 16px;
-    border: 1px solid #eef2f6;
+    border: 1px solid #2a2a2a;
     border-radius: 10px;
     overflow: hidden;
-    background: white;
+    background: #1a1a1a;
 }
 
 .cliente-header {
     font-weight: 600;
     font-size: 13px;
-    color: #1f2933;
+    color: #ffffff;
     padding: 8px 12px;
-    background: #f8fafc;
-    border-bottom: 1px solid #eef2f6;
+    background: #1f1f1f;
+    border-bottom: 1px solid #2a2a2a;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -406,7 +477,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 8px 12px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #2a2a2a;
 }
 
 .pedido-item:last-child {
@@ -422,7 +493,7 @@
 
 .pedido-item-cantidad {
     font-weight: 600;
-    color: #475569;
+    color: #a0a0a0;
     min-width: 32px;
     font-size: 12px;
 }
@@ -430,13 +501,13 @@
 .pedido-item-nombre {
     font-weight: 500;
     font-size: 13px;
-    color: #1e293b;
+    color: #e0e0e0;
     flex: 2;
 }
 
 .pedido-item-precio {
     font-weight: 500;
-    color: #2c7be5;
+    color: #8b0000;
     font-size: 12px;
     min-width: 65px;
     text-align: right;
@@ -449,10 +520,10 @@
 
 .pedido-item-comentario {
     font-size: 11px;
-    color: #94a3b8;
+    color: #a0a0a0;
     margin: 0 12px 8px 12px;
     padding: 6px 8px;
-    background: #f8fafc;
+    background: #1f1f1f;
     border-radius: 6px;
     font-style: italic;
 }
@@ -465,19 +536,20 @@
     font-size: 13px;
     border: 1px solid transparent;
     cursor: pointer;
-    background: #10b981;
-    color: white;
+    background: #2ecc71;
+    color: #000;
     transition: all 0.15s;
 }
 
 .btn-accion:hover:not(:disabled) {
-    background: #059669;
+    background: #27ae60;
 }
 
 .btn-accion:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background: #cbd5e1;
+    background: #3a3a3a;
+    color: #a0a0a0;
 }
 
 .btn-cerrar-mesa {
@@ -486,43 +558,43 @@
     border-radius: 8px;
     font-weight: 500;
     font-size: 13px;
-    border: 1px solid #f97316;
+    border: 1px solid #e67e22;
     cursor: pointer;
-    background: white;
-    color: #f97316;
+    background: transparent;
+    color: #e67e22;
     transition: all 0.15s;
 }
 
 .btn-cerrar-mesa:hover:not(:disabled) {
-    background: #fff7ed;
-    border-color: #ea580c;
-    color: #ea580c;
+    background: rgba(230, 126, 34, 0.1);
+    border-color: #f97316;
+    color: #f97316;
 }
 
 .btn-cerrar-mesa:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #94a3b8;
+    background: #1f1f1f;
+    border-color: #3a3a3a;
+    color: #777;
 }
 
 .btn-dots {
     background: none;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #3a3a3a;
     cursor: pointer;
     font-size: 14px;
     font-weight: bold;
     padding: 2px 8px;
     border-radius: 6px;
-    color: #64748b;
+    color: #a0a0a0;
     transition: all 0.15s;
 }
 
 .btn-dots:hover {
-    background: #eef2ff;
-    border-color: #2b90ff;
-    color: #2b90ff;
+    background: #1f1f1f;
+    border-color: #8b0000;
+    color: #8b0000;
 }
 
 .detalle-totales .line {
@@ -530,18 +602,19 @@
     justify-content: space-between;
     font-size: 13px;
     padding: 4px 0;
+    color: #e0e0e0;
 }
 
 .detalle-totales .total {
     font-weight: 700;
     font-size: 14px;
-    color: #1f2933;
-    border-top: 1px dashed #e2e8f0;
+    color: #ffffff;
+    border-top: 1px dashed #3a3a3a;
     margin-top: 4px;
     padding-top: 8px;
 }
 
-/* CONTROL DE VISIBILIDAD CUANDO NO HAY MESA */
+/* CONTROL DE VISIBILIDAD */
 #contenidoNormalDetalle[style*="display: none"] {
     display: none !important;
 }
@@ -557,7 +630,8 @@
     display: none !important;
 }
 
-/* RESPONSIVE para el layout principal */
+
+/* RESPONSIVE */
 @media (max-width: 500px) {
     .mesas-grid { justify-content: start; overflow-x: auto; }
     .dashboard { grid-template-columns: 1fr; }
